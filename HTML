@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura Dinámica v2.2</title> <!-- Versión actualizada -->
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos CSS personalizados */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px; /* Padding para vista en pantalla */
+            color: #333;
+            /* Counter reset para número de página en impresión */
+            counter-reset: page;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 20px auto;
+            border: 1px solid #ddd;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            background-color: #fff;
+            position: relative; /* Necesario para algunos contextos de impresión/elementos */
+            min-height: calc(100vh - 100px); /* Asegurar altura mínima en pantalla */
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            align-items: center;
+            min-height: 60px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-basis: 150px;
+            flex-shrink: 0;
+        }
+        .logo img {
+            max-width: 100%;
+            max-height: 80px;
+            object-fit: contain;
+        }
+        .invoice-details, .sender-receiver-details {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .detail-line.hidden, .info-section.hidden {
+            display: none;
+        }
+        .info-section {
+            flex: 1;
+            min-width: 250px;
+        }
+        .info-section strong { display: block; margin-bottom: 5px; }
+        .info-section span { white-space: pre-wrap; display: block; }
+
+        .invoice-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        .invoice-table th, .invoice-table td { padding: 8px 10px; border-bottom: 1px solid #ddd; text-align: right; vertical-align: top; }
+        .invoice-table th { background-color: #f8f8f8; font-weight: bold; }
+        .invoice-table th.text-left, .invoice-table td.text-left { text-align: left; }
+
+        .invoice-summary { margin-left: auto; width: 300px; }
+        .invoice-summary div.summary-line { display: flex; justify-content: space-between; margin-bottom: 5px; padding: 2px 0; }
+        .invoice-summary div.summary-line.hidden { display: none; }
+        .invoice-summary .total-line { font-weight: bold; font-size: 1.1em; border-top: 2px solid #333; padding-top: 8px; margin-top: 5px; }
+
+        .invoice-note { margin-top: 30px; font-style: italic; white-space: pre-wrap; border-top: 1px solid #eee; padding-top: 15px; }
+        .invoice-note.hidden { display: none; }
+        .invoice-note strong { display: block; margin-bottom: 5px; font-style: normal; }
+
+        /* --- Estilos Comunes para Footer --- */
+        .print-footer {
+            /* Inicialmente oculto en pantalla */
+            display: none;
+        }
+        .print-footer .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 5px 0; /* Padding vertical ligero */
+            font-size: 0.8em; /* Texto pequeño para el footer */
+            color: #555; /* Color de texto más suave */
+        }
+         /* Clases de utilidad de Tailwind usadas en HTML: text-xs */
+
+        /* --- Estilos de Impresión --- */
+        @media print {
+            body {
+                padding: 0; margin: 0;
+                background-color: #fff !important; color: #000 !important;
+                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            }
+            .invoice-container {
+                 max-width: 100%; border: none; box-shadow: none;
+                 padding: 15px; margin: 0;
+                 min-height: 95vh; /* Ajustar altura mínima para impresión */
+            }
+            thead { display: table-header-group; } /* Repetir cabecera tabla */
+            tbody tr, .invoice-summary, .invoice-note { page-break-inside: avoid; } /* Evitar cortes */
+            .no-print { display: none; }
+            * { box-shadow: none !important; }
+            .logo img { max-height: 60px; }
+
+            /* --- Estilos Pie de Página en Impresión --- */
+            .print-footer {
+                display: block !important; /* Mostrar el footer al imprimir */
+                position: fixed;         /* Fijar en la parte inferior de CADA página */
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;             /* Asegurar ancho completo */
+                padding: 5px 0.8cm;      /* Padding horizontal igual al margen de @page */
+                border-top: 1px solid #ccc; /* Borde superior ligero */
+                background-color: #fff;  /* Fondo blanco para evitar transparencia */
+                z-index: 10;             /* Asegurar que esté por encima del contenido */
+            }
+            .page-number::after {
+                 counter-increment: page;  /* Incrementar contador en cada página */
+                 content: counter(page);   /* Mostrar el valor del contador */
+            }
+        }
+        @page {
+            margin: 0.8cm; /* Márgenes de la página */
+            /* Se podría intentar poner el footer aquí, pero position:fixed da más control */
+            /* @bottom-center { content: element(print-footer); } */
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Encabezado de Impresión ELIMINADO -->
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="invoice-container">
+        <!-- ... (resto del contenido: header, details, sender/receiver, table, summary, note) ... -->
+        <div class="invoice-header">
+            <div class="logo logo-left" id="logo1"></div>
+            <div class="flex-grow text-center"></div>
+            <div class="logo logo-right" id="logo2"></div>
+        </div>
+
+        <div class="invoice-details">
+             <div id="factura-line" class="detail-line hidden"><strong>Factura #:</strong> <span id="factura"></span></div>
+             <div id="fecha-line" class="detail-line hidden"><strong>Fecha:</strong> <span id="fecha"></span></div>
+             <div id="hora-line" class="detail-line hidden"><strong>Hora:</strong> <span id="hora"></span></div>
+        </div>
+        <div class="sender-receiver-details">
+            <div id="de-section" class="info-section hidden">
+                <strong>De:</strong>
+                <span id="de"></span>
+            </div>
+            <div id="para-section" class="info-section hidden">
+                <strong>Para:</strong>
+                <span id="para"></span>
+            </div>
+        </div>
+
+        <table class="invoice-table">
+            <thead id="tabla-head"></thead>
+            <tbody id="tabla-body"></tbody>
+        </table>
+
+        <div class="invoice-summary">
+             <div id="subtotal-line" class="summary-line hidden">
+                <span>Subtotal:</span>
+                <span id="subtotal"></span>
+            </div>
+             <div id="iva-label-line" class="summary-line hidden">
+                 <span>IVA:</span>
+                 <span id="iva-label-value"></span>
+             </div>
+             <div id="iva-monto-line" class="summary-line hidden">
+                 <span>Monto IVA:</span>
+                 <span id="iva-monto-value"></span>
+             </div>
+            <div id="total-line" class="summary-line total-line hidden">
+                <span>Total:</span>
+                <span id="total"></span>
+            </div>
+        </div>
+
+        <div class="invoice-note hidden" id="nota-section">
+             <strong>Nota:</strong>
+             <span id="nota"></span>
+        </div>
+        <!-- Fin Contenido Principal -->
+    </div>
+
+    <!-- PIE DE PÁGINA PARA IMPRESIÓN (REDISENADO) -->
+    <div class="print-footer" id="print-footer">
+        <!-- Contenido interno con Flexbox para distribución -->
+        <div class="footer-content flex justify-between items-center text-xs px-1"> <!-- Padding horizontal ligero -->
+            <div class="flex-1 truncate mr-2"> <!-- Ocupa espacio, trunca si es largo -->
+                Para: <span id="footer-para">--</span>
+            </div>
+            <div class="flex-none text-center mx-2"> <!-- No crece, centrado -->
+                Fecha: <span id="footer-fecha">--</span> |
+                Hora: <span id="footer-hora">--</span>
+            </div>
+            <div class="flex-none ml-2"> <!-- No crece -->
+                Página: <span class="page-number"></span> <!-- El número se añade vía CSS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // --- Funciones Auxiliares (getUrlParams, setElementTextAndVisibility, setLogo) ---
+             function getUrlParams() {
+                const params = {};
+                const urlParams = new URLSearchParams(window.location.search);
+                params.columna = urlParams.getAll('columna');
+                const uniqueKeys = new Set(urlParams.keys());
+                uniqueKeys.forEach(key => {
+                    if (key !== 'columna') {
+                        try {
+                            params[key] = decodeURIComponent(urlParams.get(key));
+                        } catch (error) {
+                            console.error(`Error decodificando parámetro '${key}':`, error);
+                            params[key] = urlParams.get(key);
+                        }
+                    }
+                });
+                if (params.columna.length > 0) {
+                    params.columna.forEach(colName => {
+                        if (urlParams.has(colName)) {
+                             try {
+                                params[colName] = decodeURIComponent(urlParams.get(colName));
+                            } catch (error) {
+                                console.error(`Error decodificando datos de columna '${colName}':`, error);
+                                params[colName] = urlParams.get(colName);
+                            }
+                        } else {
+                            params[colName] = '';
+                        }
+                    });
+                }
+                return params;
+            }
+
+            function setElementTextAndVisibility(elementId, containerId, textContent) {
+                const element = document.getElementById(elementId);
+                const container = document.getElementById(containerId);
+                if (!element || !container) { return; }
+                if (textContent && textContent.trim() !== '') {
+                    element.textContent = textContent;
+                    container.classList.remove('hidden');
+                } else {
+                    element.textContent = '';
+                    container.classList.add('hidden');
+                }
+            }
+
+             function setLogo(containerId, logoUrl) {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                container.innerHTML = '';
+                if (logoUrl && logoUrl.trim() !== '') {
+                    const img = document.createElement('img');
+                    img.src = logoUrl;
+                    img.alt = "Logo";
+                    container.appendChild(img);
+                }
+            }
+            // --- Fin Funciones Auxiliares ---
+
+
+            function populateInvoice() {
+                const params = getUrlParams();
+                console.log("Parámetros procesados:", params);
+
+                // --- Rellenar Contenido Principal ---
+                setLogo('logo1', params.Logo1);
+                setLogo('logo2', params.Logo2);
+
+                setElementTextAndVisibility('factura', 'factura-line', params.Factura);
+                setElementTextAndVisibility('fecha', 'fecha-line', params.Fecha);
+                setElementTextAndVisibility('hora', 'hora-line', params.Hora);
+                setElementTextAndVisibility('de', 'de-section', params.De);
+                setElementTextAndVisibility('para', 'para-section', params.Para);
+
+                // --- Rellenar Tabla ---
+                const tableHead = document.getElementById('tabla-head');
+                const tableBody = document.getElementById('tabla-body');
+                tableHead.innerHTML = '';
+                tableBody.innerHTML = '';
+                let calculatedTotal = 0;
+                let amountColumnIndex = -1;
+
+                if (params.columna && params.columna.length > 0) {
+                    // ... (Código de generación de tabla sin cambios) ...
+                    const headerRow = document.createElement('tr');
+                    params.columna.forEach((colName, index) => {
+                        const th = document.createElement('th');
+                        th.textContent = colName;
+                        th.className = "px-2 py-2 " + (index === 0 ? "text-left" : "text-right");
+                        headerRow.appendChild(th);
+                        if (colName.toLowerCase() === 'monto') { amountColumnIndex = index; }
+                    });
+                     if (amountColumnIndex === -1) { amountColumnIndex = params.columna.length - 1; }
+                    tableHead.appendChild(headerRow);
+
+                    const firstColDataKey = params.columna[0];
+                    if (params[firstColDataKey] && params[firstColDataKey].trim() !== '') {
+                        const rowDataArrays = params.columna.map(colName => params[colName] ? params[colName].split(',') : []);
+                        const numRows = rowDataArrays.length > 0 ? rowDataArrays[0].length : 0;
+                        const consistentData = rowDataArrays.every(arr => arr.length === numRows);
+                        if (!consistentData) { console.warn("Columnas con diferente número de elementos."); }
+
+                        for (let i = 0; i < numRows; i++) {
+                            const bodyRow = document.createElement('tr');
+                            let rowAmount = 0;
+                            params.columna.forEach((colName, j) => {
+                                const td = document.createElement('td');
+                                const cellData = rowDataArrays[j] && rowDataArrays[j][i] !== undefined ? rowDataArrays[j][i].trim() : '';
+                                td.textContent = cellData;
+                                td.className = "px-2 py-2 " + (j === 0 ? "text-left" : "text-right");
+                                bodyRow.appendChild(td);
+                                if (j === amountColumnIndex) {
+                                    const parsedAmount = parseFloat(cellData.replace(/[^0-9.-]+/g,""));
+                                     if (!isNaN(parsedAmount)) { rowAmount = parsedAmount; }
+                                }
+                            });
+                            tableBody.appendChild(bodyRow);
+                            calculatedTotal += rowAmount;
+                        }
+                    } else {
+                         const emptyRow = tableBody.insertRow();
+                         const emptyCell = emptyRow.insertCell();
+                         emptyCell.colSpan = params.columna.length || 1;
+                         emptyCell.textContent = "No hay elementos.";
+                         emptyCell.style.textAlign = "center"; emptyCell.style.padding = "20px";
+                    }
+                } else {
+                     const emptyRow = tableBody.insertRow();
+                     const emptyCell = emptyRow.insertCell();
+                     emptyCell.textContent = "No hay columnas definidas.";
+                     emptyCell.style.textAlign = "center"; emptyCell.style.padding = "20px";
+                }
+
+                // --- Rellenar Resumen ---
+                setElementTextAndVisibility('subtotal', 'subtotal-line', params.Subtotal);
+                setElementTextAndVisibility('iva-label-value', 'iva-label-line', params.IVALine);
+                setElementTextAndVisibility('iva-monto-value', 'iva-monto-line', params.IVAMonto);
+
+                // --- Rellenar Total ---
+                const totalValue = (params.Total && params.Total.trim() !== '') ? params.Total : calculatedTotal.toFixed(2);
+                const totalElement = document.getElementById('total');
+                const totalLineElement = document.getElementById('total-line');
+                const shouldShowTotal = (params.Total && params.Total.trim() !== '') || calculatedTotal > 0 || (params.Subtotal && params.Subtotal.trim() !== '') || (params.IVAMonto && params.IVAMonto.trim() !== '') || (params.IVALine && params.IVALine.trim() !== '');
+                if (shouldShowTotal) {
+                    if (totalElement) totalElement.textContent = totalValue;
+                    if (totalLineElement) totalLineElement.classList.remove('hidden');
+                } else {
+                    if (totalElement) totalElement.textContent = '';
+                    if (totalLineElement) totalLineElement.classList.add('hidden');
+                }
+
+                // --- Rellenar Nota ---
+                setElementTextAndVisibility('nota', 'nota-section', params.Nota);
+
+
+                // --- Rellenar Pie de Página de Impresión (NUEVA LÓGICA) ---
+                const footerPara = document.getElementById('footer-para');
+                const footerFecha = document.getElementById('footer-fecha');
+                const footerHora = document.getElementById('footer-hora');
+
+                if (footerPara) {
+                    footerPara.textContent = (params.Para && params.Para.trim() !== '') ? params.Para.trim() : '--';
+                     // Podrías truncar si es muy largo:
+                     // footerPara.textContent = params.Para ? (params.Para.length > 50 ? params.Para.substring(0, 47) + '...' : params.Para) : '--';
+                }
+                if (footerFecha) {
+                    footerFecha.textContent = (params.Fecha && params.Fecha.trim() !== '') ? params.Fecha : '--';
+                }
+                 if (footerHora) {
+                    footerHora.textContent = (params.Hora && params.Hora.trim() !== '') ? params.Hora : '--';
+                }
+                // El número de página se maneja puramente con CSS
+
+            } // Fin populateInvoice
+
+            // Ejecutar al cargar
+            populateInvoice();
+
+            // Opcional: Auto-imprimir
+            // window.onload = () => { setTimeout(window.print, 1000); };
+
+        }); // Fin DOMContentLoaded
+    </script>
+</body>
+</html>
