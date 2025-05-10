@@ -370,6 +370,7 @@
                      <div id="factura-line" class="detail-line hidden"><strong>Factura #:</strong> <span id="factura"></span></div>
                      <div id="fecha-line" class="detail-line hidden"><strong>Fecha:</strong> <span id="fecha"></span></div>
                      <div id="hora-line" class="detail-line hidden"><strong>Hora:</strong> <span id="hora"></span></div>
+                     <div id="forma-pago-line" class="detail-line hidden"><strong>Forma de Pago:</strong> <span id="forma-pago"></span></div>
                 </div>
             </div>
 
@@ -592,6 +593,7 @@
                 setElementTextAndVisibility('factura', 'factura-line', params.Factura);
                 setElementTextAndVisibility('fecha', 'fecha-line', params.Fecha);
                 setElementTextAndVisibility('hora', 'hora-line', params.Hora);
+                setElementTextAndVisibility('forma-pago', 'forma-pago-line', params.FormaPago);
 
                 const styledDeContent = styleSenderReceiverContent(params.De, 'De:'); 
                 setElementTextAndVisibility('de', 'de-section', styledDeContent, true); 
