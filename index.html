@@ -30,169 +30,216 @@
             box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Default Shadow */
             background-color: #fff; /* Default BG */
             position: relative;
-            overflow: hidden; /* Para contener gradientes ::before/::after */
+            overflow: hidden; /* Para contener gradientes ::before/::after y decoraciones de pantalla */
             transition: border 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
         }
 
         /* --- Clases Utilitarias --- */
-        .hidden { display: none !important; } /* Para JS */
-        .print-only { display: none; } /* Oculto en pantalla */
-        .screen-only-decoration { display: none; } /* Oculto por defecto (pantalla/impresión) */
-        .no-print { /* Para ocultar elementos específicos en impresión */
-             /* No se usa activamente aquí, pero útil tenerla */
+        .hidden { display: none !important; } /* Para JS, oculta elementos */
+        .print-only { display: none; } /* Oculto en pantalla, visible solo en impresión vía @media print */
+        .screen-only-decoration { display: none; } /* Decoraciones específicas de pantalla, ocultas por defecto y en impresión */
+        .no-print { /* Clase útil para ocultar elementos específicos en impresión (no usada activamente aquí) */
         }
 
         /* --- Estructura: Encabezado Reorganizado --- */
         .invoice-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: flex-start; /* Alinea los items al inicio del eje transversal */
             margin-bottom: 25px;
-            min-height: 60px;
-            position: relative;
-            z-index: 1;
-            gap: 20px;
+            min-height: 60px; /* Altura mínima para acomodar logos y texto */
+            position: relative; /* Para el z-index y posicionamiento de hijos absolutos si los hubiera */
+            z-index: 1; /* Para asegurar que esté sobre cualquier pseudo-elemento de fondo del .invoice-container */
+            gap: 20px; /* Espacio entre .header-left y .header-right */
         }
         .header-left {
             display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-shrink: 0;
+            align-items: center; /* Centra verticalmente los logos si hay más de uno o texto */
+            gap: 15px; /* Espacio entre logos si hay múltiples */
+            flex-shrink: 0; /* Evita que esta sección se encoja si .header-right es muy largo */
         }
         .header-right {
-            text-align: right;
-            flex-shrink: 1;
-            padding-top: 5px;
+            text-align: right; /* Alinea el texto a la derecha */
+            flex-shrink: 1; /* Permite que esta sección se encoja si es necesario */
+            padding-top: 0px; /* Ajustado, antes 5px */
         }
         .header-right .detail-line {
-            margin-bottom: 3px;
-            /* AUMENTO DE TAMAÑO DE TEXTO DEL ENCABEZADO DERECHO */
-            font-size: 1.2em; /* Antes era 0.9em */
+            margin-bottom: 0px; /* Ajustado, antes 3px */
+            font-size: 1.2em; /* Tamaño de fuente aumentado */
         }
         .header-right .detail-line strong {
-            color: #333; /* Color base, sobrescrito por temas */
+            color: #333; /* Color base para el texto en negrita, puede ser sobrescrito por temas */
             transition: color 0.3s ease;
         }
-        .header-right .detail-line:last-child { margin-bottom: 0; }
+        .header-right .detail-line:last-child { margin-bottom: 0; } /* Evita margen extra en la última línea */
 
         /* --- Estructura: Logos --- */
         .logo { display: flex; align-items: center; }
         .logo img {
-            max-width: 130px;
-            max-height: 130px;
-            object-fit: contain;
-            display: block;
+            max-height: 60px; /* Altura máxima del logo */
+            object-fit: contain; /* Asegura que el logo se escale bien sin distorsionarse */
+            display: block; /* Evita espacio extra debajo de la imagen */
         }
-        .logo:empty { display: none; } /* Oculta si JS no pone imagen */
-        #logo2 img { max-width: 300px; } /* Permite logo 2 más ancho */
+        .logo:empty { display: none; } /* Oculta el contenedor del logo si no se carga ninguna imagen */
+        
 
         /* --- Estructura: Detalles De/Para --- */
         .sender-receiver-details {
             margin-bottom: 20px;
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+            flex-wrap: wrap; /* Permite que las secciones De/Para se coloquen una debajo de la otra en pantallas pequeñas */
+            gap: 20px; /* Espacio entre las secciones De y Para */
             position: relative;
             z-index: 1;
-            font-size: 1.2em;
+            font-size: 1.2em; /* Tamaño de fuente para esta sección */
         }
-        .info-section { flex: 1; min-width: 250px; }
-        .info-section strong.dynamic-label { /* Estilo para etiquetas dinámicas (De:, Para:) */
-            display: inline; /* Para que esté en la misma línea que el texto siguiente si es corto */
-            margin-bottom: 0; /* No necesita margen si es inline */
-            color: #333; /* Color base, sobrescrito por temas */
+        .info-section { flex: 1; min-width: 250px; } /* Cada sección toma espacio disponible, con un mínimo */
+        .info-section strong.dynamic-label { /* Estilo para etiquetas dinámicas generadas por JS (ej. "De:", "Cliente:") */
+            display: inline; 
+            margin-bottom: 0; 
+            color: #333; 
             transition: color 0.3s ease;
-            font-weight: bold; /* Asegurar que sea bold */
+            font-weight: bold; 
         }
-        /* Si el tema aplica color a .info-section strong, también lo hará a .dynamic-label */
+        /* Colores específicos de temas para las etiquetas dinámicas */
         .theme-purpura .info-section strong.dynamic-label { color: #8e24aa; }
         .theme-azul .info-section strong.dynamic-label { color: #0d47a1; }
 
-        .info-section span { white-space: pre-wrap; display: block; }
-        /* Ajuste para que el span que contiene el contenido estilizado de De/Para se comporte bien */
+        .info-section span { white-space: pre-wrap; display: block; } /* Mantiene saltos de línea y espacios del contenido */
         .info-section span#de, .info-section span#para {
-            display: block; /* Mantiene el comportamiento de bloque para múltiples líneas */
+            display: block; 
         }
 
 
         /* --- Estructura: Tabla --- */
         .invoice-table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: collapse; /* Une los bordes de las celdas */
             margin-bottom: 30px;
             position: relative;
             z-index: 1;
         }
         .invoice-table th, .invoice-table td {
             padding: 8px 10px;
-            border-bottom: 1px solid #ddd; /* Default border */
-            text-align: right;
-            vertical-align: top;
+            border-bottom: 1px solid #ddd; /* Línea divisoria entre filas */
+            text-align: right; /* Alineación por defecto para celdas (numéricas) */
+            vertical-align: top; /* Alineación vertical al inicio */
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
             font-size: 1.2em;
         }
-        .invoice-table th {
-            background-color: #f8f8f8; /* Default header BG */
+        .invoice-table th { /* Cabeceras de la tabla */
+            background-color: #f8f8f8; 
             font-weight: bold;
-            color: #333; /* Default header text */
+            color: #333; 
         }
-        .invoice-table th.text-left, .invoice-table td.text-left { text-align: left; }
+        .invoice-table th.text-left, .invoice-table td.text-left { text-align: left; } /* Para celdas de descripción */
 
         /* --- Estructura: Resumen --- */
         .invoice-summary {
-            margin-left: auto;
-            width: 300px;
-            position: relative;
+            width: 300px; 
+            float: right; 
+            margin-left: 20px; 
+            position: relative; 
             z-index: 1;
         }
         .invoice-summary .summary-line {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-between; /* Etiqueta a la izq, valor a la der */
             margin-bottom: 5px;
             padding: 2px 0;
             font-size: 1.2em;
         }
-        .invoice-summary .total-line {
+        .invoice-summary .total-line { /* Línea del total general */
             font-weight: bold;
-            font-size: 1.4em;
-            border-top: 2px solid #333; /* Default total border */
+            font-size: 1.4em; /* Más grande para destacar */
+            border-top: 2px solid #333; 
             padding-top: 8px;
             margin-top: 5px;
-            color: #333; /* Default total text */
+            color: #333; 
             transition: border-color 0.3s ease, color 0.3s ease;
         }
 
         /* --- Estructura: Notas --- */
+        /* --- Estructura: Resumen (para float layout) --- */
+        .invoice-summary {
+            width: 300px; 
+            float: right; 
+            margin-left: 20px; /* Espacio entre la nota y el resumen */
+            position: relative; 
+            z-index: 1;
+            /* Mantiene los tamaños de fuente originales para el resumen */
+            font-size: 1.2em; /* Asegura que el tamaño base sea el mismo que el de la nota */
+        }
+        .invoice-summary .summary-line {
+            display: flex;
+            justify-content: space-between; 
+            margin-bottom: 5px;
+            padding: 2px 0;
+            /* font-size: 1.2em; Hereda del padre .invoice-summary o se mantiene si es diferente */
+        }
+        .invoice-summary .total-line { 
+            font-weight: bold;
+            font-size: 1.4em; /* Tamaño específico para la línea total */
+            border-top: 2px solid #333; 
+            padding-top: 8px;
+            margin-top: 5px;
+            color: #333; 
+            transition: border-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- Estructura: Notas (Simplificado para asegurar el flujo) --- */
         .invoice-note {
-            margin-top: 30px;
-            font-style: italic;
-            white-space: pre-wrap;
-            border-top: 1px solid #eee;
+            /* Se eliminan: overflow: hidden; display: flow-root; */
+            /* Estas propiedades creaban un nuevo BFC que impedía el flujo deseado por debajo. */
+            border-top: 1px solid #eee; 
             padding-top: 15px;
-            position: relative;
+            position: relative; /* Solo para z-index si fuera necesario, no para el layout de flujo */
+            z-index: 1;
+            /* El font-size se manejará para que coincida con el texto general si no es el del resumen */
+            font-size: 1.2em; /* Coincide con .invoice-summary para consistencia inicial */
+        }
+        .invoice-note strong { 
+            display: inline; 
+            margin-right: 5px; 
+            font-style: normal; 
+            font-weight: bold; 
+        }
+        .invoice-note span#nota { 
+            display: inline; 
+            font-style: italic; 
+            white-space: pre-wrap;
+            overflow-wrap: break-word; 
+            word-break: break-word;
+        }
+        
+        /* --- Contenedor para Resumen y Notas (para float layout) --- */
+        .summary-and-notes-container {
+            margin-top: 30px; 
+            position: relative; 
             z-index: 1;
         }
-        .invoice-note strong {
-            display: block;
-            margin-bottom: 5px;
-            font-style: normal;
-        }
+        /* Clearfix para .summary-and-notes-container para que contenga el float */
+        .summary-and-notes-container::after {
+            content: "";
+            clear: both;
+            display: table;
+        }    
 
         /* --- Estructura: Pie de Página (Impresión Genérico) --- */
         .print-footer {
-            display: none; /* Visible solo en impresión por @media print */
+            display: none; /* Oculto por defecto, JS y @media print controlan visibilidad */
             padding: 10px 0;
             text-align: center;
             width: 100%;
-            position: relative; /* Fluye al final del contenido en impresión */
+            position: relative; 
             margin-top: 20px;
             font-size: 0.9em;
-            background-color: #fff; /* Default BG */
-            color: #333; /* Default text */
-            border-top: 1px solid #ddd; /* Default border */
+            background-color: #fff; 
+            color: #333; 
+            border-top: 1px solid #ddd; 
             transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
         }
-        .print-footer p { margin: 2px 0; }
+        .print-footer p { margin: 2px 0; } /* Párrafos dentro del pie de página */
 
         /* === TEMA: Púrpura Gradiente === */
         body.theme-purpura { background-color: #f3e5f5; }
@@ -202,24 +249,24 @@
             box-shadow: 0 0 20px rgba(171, 71, 188, 0.2);
             border-radius: 8px;
         }
-        .theme-purpura .invoice-container::before {
+        .theme-purpura .invoice-container::before { /* Decoración gradiente superior */
             content: ''; position: absolute; top: 0; left: 0; right: 0; height: 10px;
             background: linear-gradient(to bottom, rgba(206, 147, 216, 0.6), rgba(206, 147, 216, 0));
             border-radius: 8px 8px 0 0; z-index: 0; pointer-events: none;
         }
-        .theme-purpura .invoice-container::after {
+        .theme-purpura .invoice-container::after { /* Decoración gradiente inferior */
             content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50px;
             background: linear-gradient(to top, rgba(206, 147, 216, 0.7), rgba(206, 147, 216, 0));
             border-radius: 0 0 8px 8px; z-index: 0; opacity: 0.8; pointer-events: none;
         }
         .theme-purpura .header-right strong,
-        .theme-purpura .info-section strong { color: #8e24aa; } /* Esto afectará a .dynamic-label también */
+        .theme-purpura .info-section strong { color: #8e24aa; } 
         .theme-purpura .invoice-table th {
             background-color: #e1bee7; color: #8e24aa; border-bottom: 1px solid #ce93d8;
         }
         .theme-purpura .invoice-table td { border-bottom: 1px solid #f3e5f5; }
         .theme-purpura .invoice-summary .total-line { border-top: 2px solid #ab47bc; color: #8e24aa; }
-        .theme-purpura .print-footer { /* Estilos específicos impresión */
+        .theme-purpura .print-footer { /* Estilos de pie de página para impresión en tema Púrpura */
              background-color: #ab47bc; color: #ffffff; border-top: none;
         }
         .theme-purpura .print-footer p { color: #ffffff; }
@@ -227,54 +274,68 @@
         /* === TEMA: Azul Abstracto Pro === */
         body.theme-azul { background-color: #eef5ff; }
         .theme-azul .invoice-container {
-            border: none;
+            border: none; /* Sin borde explícito, usa sombra */
             box-shadow: 0 4px 15px rgba(0, 50, 150, 0.15);
             background-color: #fff;
         }
         .theme-azul .header-right strong,
-        .theme-azul .info-section strong { color: #0d47a1; } /* Esto afectará a .dynamic-label también */
+        .theme-azul .info-section strong { color: #0d47a1; } 
         .theme-azul .invoice-table th {
             background-color: #1e88e5; color: #ffffff; border-bottom: 1px solid #1565c0;
         }
         .theme-azul .invoice-table td { border-bottom: 1px solid #bbdefb; }
         .theme-azul .invoice-summary .total-line { border-top: 2px solid #0d47a1; color: #0d47a1; }
-        .theme-azul .print-footer { /* Estilos específicos impresión */
+        .theme-azul .print-footer { /* Estilos de pie de página para impresión en tema Azul */
              background-color: #eef5ff; color: #0d47a1; border-top: 1px solid #42a5f5;
         }
         .theme-azul .print-footer p { color: #0d47a1; }
 
 
-        /* === TEMA: Azul Abstracto Pro HF (Decoraciones) === */
+        /* === TEMA: Azul Abstracto Pro HF (Decoraciones Header/Footer Fijos para Impresión) === */
+        /* Estilos base para los contenedores de decoración de header/footer de impresión */
         #print-header-azul, #print-footer-azul {
             height: 25px; background-color: #0d47a1; width: 100%;
-            position: fixed; left: 0; z-index: 1000;
-            -webkit-print-color-adjust: exact; print-color-adjust: exact;
+            -webkit-print-color-adjust: exact; print-color-adjust: exact; /* Asegura que los colores de fondo se impriman */
+            /* position y z-index se manejan en @media print o de forma más específica */
         }
-        #print-header-azul { top: 0; }
-        #print-footer-azul { bottom: 0; }
+        /* Posicionamiento específico para el header de impresión (antes de @media print) */
+        #print-header-azul { 
+            top: 0; /* Relevante si se hace fixed o absolute */
+        } 
+        /* Posicionamiento específico para el footer de impresión (fijo por defecto) */
+        #print-footer-azul { 
+            bottom: 0; position: fixed; left: 0; z-index: 1000; 
+        }
+        /* Estilos para las formas decorativas dentro del header/footer de impresión */
         #print-header-azul .deco-circle, #print-footer-azul .deco-skew {
-             position: absolute; top: 50%; border: 4px solid #fff; z-index: 1001;
+            top: 50%; border: 4px solid #fff; z-index: 1001; /* Sobre la barra de fondo */
             -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
-        #print-header-azul .deco-circle {
+        #print-header-azul .deco-circle { /* Círculo en el header de impresión */
+            position: absolute; /* Se posiciona respecto a #print-header-azul */
             transform: translateY(-50%); left: 30px; width: 35px; height: 35px;
-            background-color: #42a5f5; border-radius: 50%;
+            background-color: #42a5f5; border-radius: 50%; 
         }
-        #print-footer-azul .deco-skew {
-             transform: translateY(-50%) skew(-20deg); right: 30px; width: 60px; height: 20px;
-             background-color: #1e88e5;
+        #print-footer-azul .deco-skew { /* Forma inclinada en el footer de impresión */
+            position: absolute; /* Se posiciona respecto a #print-footer-azul */
+            transform: translateY(-50%) skew(-20deg); right: 30px; width: 60px; height: 20px;
+            background-color: #1e88e5; 
         }
+
+        /* Decoraciones equivalentes para PANTALLA (Tema Azul) */
         #screen-header-azul, #screen-footer-azul {
-            height: 25px; background-color: #0d47a1; margin-left: -30px; margin-right: -30px;
-            position: relative; overflow: hidden;
+            height: 25px; background-color: #0d47a1; 
+            /* Márgenes negativos para extenderse al borde del .invoice-container si este tiene padding */
+            margin-left: -30px; margin-right: -30px;
+            position: relative; overflow: hidden; /* Contiene las decoraciones internas */
         }
-        #screen-header-azul {
+        #screen-header-azul { /* Barra decorativa superior en pantalla */
             margin-top: -30px; 
-            margin-bottom: 20px; 
+            margin-bottom: 20px; /* Espacio después de la barra */
         }
-        #screen-footer-azul{
+        #screen-footer-azul{ /* Barra decorativa inferior en pantalla */
             margin-bottom: -30px; 
-            margin-top: 20px; 
+            margin-top: 20px; /* Espacio antes de la barra */
         }
         #screen-header-azul .deco-circle, #screen-footer-azul .deco-skew {
              position: absolute; top: 50%; border: 4px solid #fff; z-index: 1;
@@ -287,6 +348,7 @@
             transform: translateY(-50%) skew(-20deg); right: 30px; width: 60px; height: 20px;
             background-color: #1e88e5;
         }
+        /* Activa la visibilidad de las decoraciones de pantalla cuando se usa el tema HF */
         body.use-hf-azul .screen-only-decoration {
              display: block;
         }
@@ -294,40 +356,60 @@
 
         /* --- Estilos de Impresión --- */
         @media print {
-            body {
+            body { /* Reseteos básicos para impresión */
                 margin: 0 !important;
                 padding: 0 !important; 
-                color: #000 !important;
-                background-color: #fff !important; 
-                -webkit-print-color-adjust: exact; print-color-adjust: exact;
+                color: #000 !important; /* Texto negro para legibilidad */
+                background-color: #fff !important; /* Fondo blanco */
+                -webkit-print-color-adjust: exact; print-color-adjust: exact; /* Fuerza la impresión de colores y fondos */
             }
+            /* Fondos específicos de tema para el body en impresión */
             body.theme-purpura { background-color: #f3e5f5 !important; }
             body.theme-azul { background-color: #eef5ff !important; }
+            
+            /* Ajustes para el tema con Header/Footer fijos en impresión */
             body.use-hf-azul {
-                 padding-top: 5px !important; 
-                 padding-bottom: 35px !important; 
+                 padding-top: 0 !important; /* El header en flujo ocupa su propio espacio inicial */
+                 padding-bottom: 35px !important; /* Espacio para el footer fijo */
             }
-            .invoice-container {
-                max-width: 100%;
+            .invoice-container { /* Contenedor principal de la factura en impresión */
+                max-width: 100%; /* Ocupa todo el ancho disponible */
                 padding: 15px !important; 
                 margin: 0 !important;
-                overflow: visible !important;
-                background-color: #fff !important; 
+                overflow: visible !important; /* Permite que el contenido se desborde si es necesario (ej. sombras largas) */
+                background-color: #fff !important; /* Fondo blanco para el contenido de la factura */
             }
-            .print-only { display: block !important; } 
-            .screen-only-decoration { display: none !important; } 
-            .no-print { display: none !important; }
-            * { box-shadow: none !important; color-adjust: exact !important; } 
-            thead { display: table-header-group !important; } 
-            tbody tr, .invoice-summary, .invoice-note { page-break-inside: avoid !important; }
-            .print-footer { 
+            .print-only { display: block !important; } /* Muestra elementos solo para impresión */
+            .print-footer.hidden { display: none !important; } /* Si el pie genérico tiene .hidden, se oculta */
+
+            .screen-only-decoration { display: none !important; } /* Oculta decoraciones de pantalla */
+            .no-print { display: none !important; } /* Oculta elementos marcados para no imprimir */
+            * { box-shadow: none !important; color-adjust: exact !important; } /* Quita sombras y fuerza colores */
+            
+            thead { display: table-header-group !important; } /* Repite cabeceras de tabla en cada página */
+            /* Evita saltos de página dentro de estos elementos */
+            tbody tr, .invoice-summary, .invoice-note { page-break-inside: avoid !important; } 
+            
+            .print-footer:not(.hidden) { /* Estilos para el pie de página genérico cuando es visible */
                 display: block !important;
                 border: none !important; 
             }
-            body.use-hf-azul #print-header-azul,
-            body.use-hf-azul #print-footer-azul {
-                display: flex !important; 
+
+            /* Visibilidad y posicionamiento del Header/Footer del tema Azul Abstracto Pro HF en impresión */
+            body.use-hf-azul #print-header-azul {
+                display: flex !important; /* Asegura que sea visible y flex container */
+                position: relative !important; /* Para que esté en el flujo normal y solo en la primera página */
+                z-index: 1; /* Sobre el contenido si hay solapamientos */
             }
+            body.use-hf-azul #print-footer-azul {
+                display: flex !important; /* Asegura que sea visible y flex container */
+                position: fixed !important; /* Fijo para que se repita en todas las páginas */
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                z-index: 1000 !important; /* Por encima de casi todo */
+            }
+            /* Oculta el header/footer del tema HF si no se usa la clase .use-hf-azul */
             body:not(.use-hf-azul) #print-header-azul,
             body:not(.use-hf-azul) #print-footer-azul {
                 display: none !important;
@@ -335,34 +417,35 @@
         }
 
         /* --- Reglas @page --- */
-        @page {
-             padding: 0.8cm 1cm 1cm 1cm;
-             margin: 0cm 0cm 0cm 0cm;
+        @page { /* Define márgenes de la página para impresión */
+             padding: 0.8cm 1cm 1cm 1cm; /* Padding interno de la página antes del contenido del body */
+             margin: 0cm 0cm 0cm 0cm; /* Márgenes externos de la página (generalmente 0 si se controla con padding) */
         }
 
     </style>
 </head>
-<body class="bg-gray-100"> <!-- Clase base, sobrescrita por JS -->
+<body class="bg-gray-100"> <!-- Clase base de Tailwind, sobrescrita por JS para temas -->
 
-    <!-- Encabezado/Pie Fijo para Impresión (Tema Azul) -->
+    <!-- Encabezado Fijo para Impresión (Tema Azul Abstracto Pro HF) -->
     <div id="print-header-azul" class="print-only">
         <div class="deco-circle"></div>
     </div>
+    <!-- Pie Fijo para Impresión (Tema Azul Abstracto Pro HF) -->
     <div id="print-footer-azul" class="print-only">
         <div class="deco-skew"></div>
     </div>
 
     <!-- Wrapper para padding general en pantalla -->
     <div class="invoice-wrapper">
-        <!-- CONTENEDOR PRINCIPAL -->
+        <!-- CONTENEDOR PRINCIPAL DE LA FACTURA -->
         <div class="invoice-container">
 
-            <!-- Decoración SUPERIOR para PANTALLA (Tema Azul) -->
+            <!-- Decoración SUPERIOR para PANTALLA (Tema Azul Abstracto Pro HF) -->
             <div id="screen-header-azul" class="screen-only-decoration">
                 <div class="deco-circle"></div>
             </div>
 
-            <!-- Encabezado -->
+            <!-- Encabezado de la Factura -->
             <div class="invoice-header">
                 <div class="header-left">
                     <div class="logo" id="logo1"></div>
@@ -376,61 +459,52 @@
                 </div>
             </div>
 
-            <!-- Detalles De/Para -->
+            <!-- Detalles del Emisor (De) y Receptor (Para) -->
             <div class="sender-receiver-details">
                 <div id="de-section" class="info-section hidden">
-                    <!-- La etiqueta "De:" se eliminará de aquí y se generará dinámicamente si es necesario por JS -->
                     <span id="de"></span>
                 </div>
                 <div id="para-section" class="info-section hidden">
-                    <!-- La etiqueta "Para:" se eliminará de aquí y se generará dinámicamente si es necesario por JS -->
                     <span id="para"></span>
                 </div>
             </div>
 
-            <!-- Tabla de Items -->
+            <!-- Tabla de Items de la Factura -->
             <table class="invoice-table">
                 <thead id="tabla-head"></thead>
                 <tbody id="tabla-body"></tbody>
             </table>
 
-            <!-- Resumen y Totales -->
-            <div class="invoice-summary">
-                 <div id="subtotal-line" class="summary-line hidden">
-                    <span>Subtotal:</span>
-                    <span id="subtotal"></span>
-                </div>
-                <!-- NUEVA LÍNEA PARA DESCUENTO -->
-                <div id="descuento-line" class="summary-line hidden">
-                    <span>Descuento:</span>
-                    <span id="descuento"></span>
-                </div>
-                <!-- AJUSTE EN LA LÍNEA DE IVA -->
-                 <div id="iva-label-line" class="summary-line hidden">
-                     <span>IVA (<span id="iva-label-text"></span>):</span> <!-- Cambiado id de iva-label a iva-label-text -->
-                     <span id="iva-label-value"></span> <!-- Este span ahora contendrá el valor del IVA (antes IVAMonto) -->
-                 </div>
-                 <!-- La línea de IVAMonto se puede eliminar o reutilizar si es necesario,
-                      pero con el cambio anterior, 'iva-label-value' ya mostrará el monto.
-                      Para simplificar, la comentaremos o eliminaremos del JS si no se usa.
-                      Por ahora, la dejo comentada en el HTML por si se le da otro uso. -->
-                 <!-- <div id="iva-monto-line" class="summary-line hidden">
-                     <span>Monto IVA:</span>
-                     <span id="iva-monto-value"></span>
-                 </div> -->
-                <div id="total-line" class="summary-line total-line hidden">
-                    <span>Total:</span>
-                    <span id="total"></span>
-                </div>
-            </div>
+            <!-- Contenedor para Resumen y Notas -->
+            <div class="summary-and-notes-container">
 
-            <!-- Notas Adicionales -->
-            <div id="nota-section" class="invoice-note hidden">
-                 <strong>Nota:</strong>
-                 <span id="nota"></span>
-            </div>
+                <!-- Resumen de Totales de la Factura -->
+                <div class="invoice-summary">
+                    <div id="subtotal-line" class="summary-line hidden">
+                        <span>Subtotal:</span>
+                        <span id="subtotal"></span>
+                    </div>
+                    <div id="descuento-line" class="summary-line hidden">
+                        <span>Descuento:</span>
+                        <span id="descuento"></span>
+                    </div>
+                    <div id="iva-label-line" class="summary-line hidden">
+                        <span>IVA (<span id="iva-label-text"></span>):</span>
+                        <span id="iva-label-value"></span>
+                    </div>
+                    <div id="total-line" class="summary-line total-line hidden">
+                        <span>Total:</span>
+                        <span id="total"></span>
+                    </div>
+                </div>
 
-            <!-- Decoración INFERIOR para PANTALLA (Tema Azul) -->
+                <!-- Notas Adicionales de la Factura -->
+                <div id="nota-section" class="invoice-note hidden">
+                     <strong>Nota:</strong> <span id="nota"></span>
+                </div>
+            </div> <!-- FIN .summary-and-notes-container -->
+
+            <!-- Decoración INFERIOR para PANTALLA (Tema Azul Abstracto Pro HF) -->
             <div id="screen-footer-azul" class="screen-only-decoration">
                 <div class="deco-skew"></div>
             </div>
@@ -438,21 +512,12 @@
         </div> <!-- FIN .invoice-container -->
     </div> <!-- FIN .invoice-wrapper -->
 
-    <!-- PIE DE PÁGINA GENÉRICO PARA IMPRESIÓN -->
-     <!--
-    <div class="print-footer print-only" id="print-footer">
-        <p>Gracias por su preferencia.</p>
-        -->
-        <!-- Las siguientes líneas se comentarán en el JS para que no se rellenen -->
-         <!--
-        <p id="footer-company-info"></p>
-        -->
-        <!-- 
-        <p>Fecha de impresión: <span id="print-date"></span></p>
-        -->
-        <!--
+    <!-- PIE DE PÁGINA GENÉRICO PARA IMPRESIÓN (controlado por JS y parámetro NotaP) -->
+    <div class="print-footer print-only hidden" id="print-footer">
+        <p id="footer-company-info"></p> <!-- Rellenado por JS con Factura # y Cliente -->
+        <p>Fecha de impresión: <span id="print-date"></span></p> <!-- Rellenado por JS con fecha actual -->
+        <!-- El contenido del parámetro NotaP se añadirá aquí dinámicamente por JS si existe (p id="footer-notap-content") -->
     </div>
-    -->
     
 
     <script>
@@ -462,28 +527,29 @@
             function getUrlParams() {
                 const params = {};
                 const urlParams = new URLSearchParams(window.location.search);
-                params.columna = urlParams.getAll('columna');
-                const uniqueKeys = new Set(urlParams.keys());
+                params.columna = urlParams.getAll('columna'); // Obtiene todos los valores del parámetro 'columna' (puede ser múltiple)
+                const uniqueKeys = new Set(urlParams.keys()); // Obtiene todas las claves únicas de la URL
                 uniqueKeys.forEach(key => {
-                    if (key !== 'columna') {
+                    if (key !== 'columna') { // Procesa todos los parámetros excepto 'columna' (ya procesado)
                         try {
-                             params[key] = decodeURIComponent(urlParams.get(key));
+                             params[key] = decodeURIComponent(urlParams.get(key)); // Decodifica el valor del parámetro
                          } catch (e) {
                             console.error(`Error decodificando parámetro '${key}':`, e);
-                            params[key] = urlParams.get(key); 
+                            params[key] = urlParams.get(key); // Usa el valor crudo si falla la decodificación
                         }
                     }
                 });
+                // Procesa los datos de las columnas nombradas en el parámetro 'columna'
                 params.columna.forEach(colName => {
-                    if (urlParams.has(colName)) {
+                    if (urlParams.has(colName)) { // Si existe un parámetro con el nombre de la columna
                          try {
-                             params[colName] = decodeURIComponent(urlParams.get(colName));
+                             params[colName] = decodeURIComponent(urlParams.get(colName)); // Decodifica sus datos
                          } catch (e) {
                              console.error(`Error decodificando datos de columna '${colName}':`, e);
-                             params[colName] = urlParams.get(colName);
+                             params[colName] = urlParams.get(colName); // Usa datos crudos si falla
                          }
                     } else {
-                        params[colName] = ''; 
+                        params[colName] = ''; // Si no existe, asigna un string vacío
                     }
                 });
                 return params;
@@ -491,185 +557,196 @@
 
             function applyTheme(themeName) {
                 const body = document.body;
+                // Limpia clases de temas anteriores y la clase base de Tailwind para el fondo
                 body.classList.remove('theme-purpura', 'theme-azul', 'bg-gray-100', 'use-hf-azul');
+                // Oculta por defecto los headers/footers de impresión del tema Azul HF
                 try { 
                     document.getElementById('print-header-azul').style.display = 'none';
                     document.getElementById('print-footer-azul').style.display = 'none';
-                } catch (e) { /* Ignorar */ }
+                } catch (e) { /* Ignorar si los elementos no existen */ }
 
+                // Aplica el tema seleccionado
                 if (themeName === 'PurpuraGrad') {
                     body.classList.add('theme-purpura');
                 } else if (themeName === 'AzulAbstractPro') {
                     body.classList.add('theme-azul');
-                } else if (themeName === 'AzulAbstractProHF') {
+                } else if (themeName === 'AzulAbstractProHF') { // Tema Azul con Header/Footer fijos para impresión
                     body.classList.add('theme-azul', 'use-hf-azul');
-                } else {
-                     body.classList.add('bg-gray-100'); 
+                } else { // Tema por defecto o si no se especifica
+                     body.classList.add('bg-gray-100'); // Fondo gris claro de Tailwind
                 }
             }
 
+            // Función para establecer texto y visibilidad de un elemento y su contenedor
             function setElementTextAndVisibility(elementId, containerId, textContent, isHtml = false) {
-                const element = document.getElementById(elementId);
-                const container = document.getElementById(containerId);
-                 if (!container) {
+                const element = document.getElementById(elementId); // Elemento que contendrá el texto
+                const container = document.getElementById(containerId); // Contenedor que se mostrará/ocultará
+                 if (!container) { // Si el contenedor no existe, no hacer nada
                     return; 
                  }
-                 container.classList.add('hidden');
+                 container.classList.add('hidden'); // Oculta el contenedor por defecto
+                 // Si hay un elemento específico para el texto y hay contenido
                  if (element && textContent && String(textContent).trim() !== '') {
-                     if (isHtml) {
+                     if (isHtml) { // Si el contenido es HTML
                          element.innerHTML = textContent;
-                     } else {
+                     } else { // Si es texto plano
                          element.textContent = textContent;
                      }
-                     container.classList.remove('hidden'); 
-                 } else if (!element && textContent && String(textContent).trim() !== '') {
+                     container.classList.remove('hidden'); // Muestra el contenedor
+                 } else if (!element && textContent && String(textContent).trim() !== '') { // Si no hay elemento específico, pero sí contenido para el contenedor
                      if (isHtml) {
                         container.innerHTML = textContent;
                      } else {
                         container.textContent = textContent; 
                      }
-                     container.classList.remove('hidden');
+                     container.classList.remove('hidden'); // Muestra el contenedor
                  }
             }
 
+            // Función para establecer la imagen de un logo
             function setLogo(containerId, logoUrl, defaultUrl) {
                 const container = document.getElementById(containerId);
                 if (!container) return;
-                container.innerHTML = ''; 
+                container.innerHTML = ''; // Limpia el contenedor del logo
+                // Usa el logoUrl proporcionado, o el defaultUrl si el primero está vacío
                 const urlToUse = (logoUrl && String(logoUrl).trim() !== '') ? logoUrl : defaultUrl;
                 if (urlToUse) {
                     const img = document.createElement('img');
                     img.src = urlToUse;
                     img.alt = "Logo";
-                    img.onerror = () => {
+                    img.onerror = () => { // Si falla la carga del logo
                         console.warn(`No se pudo cargar el logo: ${urlToUse}`);
-                        container.innerHTML = ''; 
+                        container.innerHTML = ''; // Limpia el contenedor para no mostrar imagen rota
                     };
                     container.appendChild(img);
                 }
             }
 
-            /**
-             * CAMBIO: Función para aplicar estilo a las etiquetas De/Para dinámicamente.
-             * Aplica <strong> a la parte del texto antes del primer ':' en cada línea.
-             * @param {string} textContent - El texto original.
-             * @param {string} defaultLabel - La etiqueta por defecto si no se encuentra ':' (ej. "De:", "Cliente:").
-             * @returns {string} - El texto con formato HTML.
-             */
+            // Función para dar estilo a las etiquetas (ej. "De:", "Cliente:") en el contenido de De/Para
             function styleSenderReceiverContent(textContent, defaultLabel) {
                 if (!textContent || String(textContent).trim() === '') {
-                    return ''; // No hay contenido, no mostrar nada.
+                    return ''; 
                 }
-
-                const lines = String(textContent).split('\n');
+                const lines = String(textContent).split('\n'); // Divide el contenido en líneas
                 const processedLines = lines.map(line => {
-                    const colonIndex = line.indexOf(':');
-                    if (colonIndex > -1) {
-                        // Aplicar estilo hasta el ':' (incluido)
-                        const labelPart = line.substring(0, colonIndex + 1);
-                        const valuePart = line.substring(colonIndex + 1);
-                        return `<strong class="dynamic-label">${labelPart}</strong>${valuePart}`;
-                    } else {
-                        // Si no hay ':', se podría o no añadir la etiqueta por defecto.
-                        // Por ahora, si el usuario no pone ':', no forzamos la etiqueta.
-                        // Si se quisiera forzar la etiqueta: return `<strong class="dynamic-label">${defaultLabel}</strong> ${line}`;
-                        return line; // Devuelve la línea tal cual si no hay ':'
+                    const colonIndex = line.indexOf(':'); // Busca el primer ':' en la línea
+                    if (colonIndex > -1) { // Si se encuentra ':'
+                        const labelPart = line.substring(0, colonIndex + 1); // Texto hasta ':' (incluido)
+                        const valuePart = line.substring(colonIndex + 1); // Texto después de ':'
+                        return `<strong class="dynamic-label">${labelPart}</strong>${valuePart}`; // Envuelve la etiqueta en <strong>
+                    } else { // Si no hay ':'
+                        return line; // Devuelve la línea tal cual
                     }
                 });
-                return processedLines.join('<br>');
+                return processedLines.join('<br>'); // Une las líneas procesadas con saltos de línea HTML
             }
 
 
-            // --- Lógica Principal ---
+            // --- Lógica Principal de Población de la Factura ---
             function populateInvoice() {
-                const params = getUrlParams();
-                // console.log("Parámetros procesados:", params);
+                const params = getUrlParams(); // Obtiene los parámetros de la URL
+                const locale = 'es-ES'; // Configuración regional para formato de moneda y fecha
+                const currencyOptions = { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }; // Opciones para formatear moneda
 
-                const defaultLogo1Url = 'https://cdn.discordapp.com/attachments/925921694332375073/1358565361456513034/Sin_titulo-2_svg_formato.svg?ex=68207857&is=681f26d7&hm=efa22e96ea5401e72b34ea9e37c898865d23b6156b55692c7b853f2ac016a23d&';
-                const defaultLogo2Url = 'https://cdn.discordapp.com/attachments/925921694332375073/1358565361779343500/Sin_titulo-3.svg?ex=68207857&is=681f26d7&hm=88bbd5e013af44c72cee26fbacc231dfe126d658bfc9529a9a61b73ad47895a6&';
+                // URLs de logos por defecto (si no se proporcionan en los parámetros)
+                const defaultLogo1Url = 'https://raw.githubusercontent.com/Francisco05c/Plantilla_HTML_Factura_Documento/2b16dde0b11d935e478cc4af5dc0832b6e3fc3e8/Logo.svg'; // Reemplazar con URL accesible o quitar si no hay default
+                const defaultLogo2Url = '';
 
-                applyTheme(params.tema);
-                setLogo('logo1', params.Logo1, defaultLogo1Url);
-                setLogo('logo2', params.Logo2, defaultLogo2Url);
+                applyTheme(params.tema); // Aplica el tema visual
+                setLogo('logo1', params.Logo1, defaultLogo1Url); // Establece el logo 1
+                setLogo('logo2', params.Logo2, defaultLogo2Url); // Establece el logo 2
 
+                // Rellena los detalles del encabezado de la factura
                 setElementTextAndVisibility('factura', 'factura-line', params.Factura);
                 setElementTextAndVisibility('fecha', 'fecha-line', params.Fecha);
                 setElementTextAndVisibility('hora', 'hora-line', params.Hora);
                 setElementTextAndVisibility('forma-pago', 'forma-pago-line', params.FormaPago);
 
+                // Rellena y da estilo a los detalles del Emisor (De)
                 const styledDeContent = styleSenderReceiverContent(params.De, 'De:'); 
                 setElementTextAndVisibility('de', 'de-section', styledDeContent, true); 
 
+                // Rellena y da estilo a los detalles del Receptor (Cliente/Para)
                 const styledClienteContent = styleSenderReceiverContent(params.Cliente, 'Cliente:');
                 setElementTextAndVisibility('para', 'para-section', styledClienteContent, true); 
                                 
+                // Rellena la tabla de items
                 const tableHead = document.getElementById('tabla-head');
                 const tableBody = document.getElementById('tabla-body');
-                tableHead.innerHTML = '';
-                tableBody.innerHTML = '';
-                let calculatedTotal = 0;
-                let amountColumnIndex = -1;
-                const columnNames = params.columna || [];
+                tableHead.innerHTML = ''; // Limpia cabecera de la tabla
+                tableBody.innerHTML = ''; // Limpia cuerpo de la tabla
+                let calculatedTotal = 0; // Variable para calcular el total de los items
+                let amountColumnIndex = -1; // Índice de la columna 'Monto' (o la última si no se encuentra)
+                const columnNames = params.columna || []; // Nombres de las columnas de la tabla
 
-                if (columnNames.length > 0) {
-                    const headerRow = document.createElement('tr');
-                    columnNames.forEach((colName, index) => {
+                if (columnNames.length > 0) { // Si se definieron columnas
+                    const headerRow = document.createElement('tr'); // Crea fila de cabecera
+                    columnNames.forEach((colName, index) => { // Para cada nombre de columna
                         const th = document.createElement('th');
                         th.textContent = colName;
-                        th.className = (index === 0) ? 'text-left' : 'text-right';
+                        th.className = (index === 0) ? 'text-left' : 'text-right'; // Primera columna a la izq, resto a la der
                         headerRow.appendChild(th);
+                        // Busca la columna 'monto' para el cálculo (insensible a mayúsculas/minúsculas)
                         if (typeof colName === 'string' && colName.toLowerCase() === 'monto') {
                            amountColumnIndex = index;
                         }
                     });
-                    if (amountColumnIndex === -1 && columnNames.length > 0) { // Asegurarse que columnNames no está vacío
+                    // Si no se encontró 'monto', asume que la última columna contiene los montos
+                    if (amountColumnIndex === -1 && columnNames.length > 0) { 
                        amountColumnIndex = columnNames.length - 1;
                     }
-                    tableHead.appendChild(headerRow);
+                    tableHead.appendChild(headerRow); // Añade la fila de cabecera a la tabla
 
+                    // Obtiene los datos de la primera columna para determinar el número de filas
                     const firstColName = columnNames[0];
                     const firstColData = params[firstColName] ? String(params[firstColName]).split(',') : [];
 
+                    // Si hay datos en la primera columna (y por ende, filas en la tabla)
                     if (firstColData.length > 0 && firstColData[0].trim() !== '') {
                         const numRows = firstColData.length;
+                        // Crea un array de arrays, donde cada subarray contiene los datos de una columna
                         const rowDataArrays = columnNames.map(colName =>
                             params[colName] ? String(params[colName]).split(',') : Array(numRows).fill('')
                         );
+                        // Verifica si todas las columnas tienen el mismo número de elementos
                         const consistentData = rowDataArrays.every(arr => arr.length === numRows);
                         if (!consistentData) {
                             console.warn("Advertencia: Las columnas no tienen el mismo número de elementos.");
                         }
+                        // Itera sobre cada fila
                         for (let i = 0; i < numRows; i++) {
-                            const bodyRow = document.createElement('tr');
-                            let rowAmount = 0;
-                            columnNames.forEach((colName, j) => {
+                            const bodyRow = document.createElement('tr'); // Crea una nueva fila
+                            let rowAmount = 0; // Monto de la fila actual
+                            columnNames.forEach((colName, j) => { // Itera sobre cada columna para la fila actual
                                 const td = document.createElement('td');
+                                // Obtiene el dato de la celda, asegurándose de que exista
                                 const cellData = (rowDataArrays[j] && rowDataArrays[j][i] !== undefined)
                                                  ? String(rowDataArrays[j][i]).trim()
                                                  : '';
                                 td.textContent = cellData;
-                                td.className = (j === 0) ? 'text-left' : 'text-right';
+                                td.className = (j === 0) ? 'text-left' : 'text-right'; // Estilo de alineación
                                 bodyRow.appendChild(td);
+                                // Si es la columna de monto, procesa el valor para el cálculo
                                 if (j === amountColumnIndex) {
-                                    const cleanedData = cellData.replace(/[^\d.,-]/g, '').replace(',', '.');
-                                    const parsedAmount = parseFloat(cleanedData);
+                                    const cleanedData = cellData.replace(/[^\d.,-]/g, '').replace(',', '.'); // Limpia caracteres no numéricos
+                                    const parsedAmount = parseFloat(cleanedData); // Convierte a número
                                     if (!isNaN(parsedAmount)) {
                                         rowAmount = parsedAmount;
                                     }
                                 }
                             });
-                            tableBody.appendChild(bodyRow);
-                            calculatedTotal += rowAmount;
+                            tableBody.appendChild(bodyRow); // Añade la fila al cuerpo de la tabla
+                            calculatedTotal += rowAmount; // Suma el monto de la fila al total calculado
                         }
-                    } else {
+                    } else { // Si no hay items en la tabla
                          const emptyRow = tableBody.insertRow();
                          const emptyCell = emptyRow.insertCell();
-                         emptyCell.colSpan = columnNames.length || 1; // Evitar colspan 0
+                         emptyCell.colSpan = columnNames.length || 1; // Abarca todas las columnas
                          emptyCell.textContent = "No hay elementos para mostrar.";
                          emptyCell.style.textAlign = "center";
                          emptyCell.style.padding = "20px";
                     }
-                } else {
+                } else { // Si no se definieron columnas para la tabla
                      const emptyRow = tableBody.insertRow();
                      const emptyCell = emptyRow.insertCell();
                      emptyCell.colSpan = 1; 
@@ -678,67 +755,84 @@
                      emptyCell.style.padding = "20px";
                 }
 
-                // --- Rellenar Resumen ---
-                const locale = 'es-ES'; 
-                const currencyOptions = { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }; 
-
+                // --- Rellenar Resumen de Totales ---
                 setElementTextAndVisibility('subtotal', 'subtotal-line', params.Subtotal);
-                
-                // NUEVO: Procesar y mostrar Descuento
                 setElementTextAndVisibility('descuento', 'descuento-line', params.Descuento);
+                setElementTextAndVisibility('iva-label-text', 'iva-label-line', params.IVALine); // Etiqueta del IVA (ej. "18%")
+                setElementTextAndVisibility('iva-label-value', 'iva-label-line', params.IVAMonto); // Monto del IVA
 
-                // AJUSTE: Procesar IVA
-                // El texto de la etiqueta IVA (ej. "18%") va a 'iva-label-text'
-                setElementTextAndVisibility('iva-label-text', 'iva-label-line', params.IVALine);
-                // El monto del IVA (antes en params.IVAMonto) va a 'iva-label-value'
-                setElementTextAndVisibility('iva-label-value', 'iva-label-line', params.IVAMonto);
-
-                // La línea original de 'iva-monto-line' ya no es necesaria si se combinó.
-                // Si 'iva-monto-line' fue eliminada del HTML, esta llamada no hará nada o puedes eliminarla.
-                // document.getElementById('iva-monto-line')?.classList.add('hidden');
-
-
+                // Formatea el total calculado de los items
                 const formattedCalculatedTotal = calculatedTotal.toLocaleString(locale, currencyOptions); 
-                let totalValueToShow = formattedCalculatedTotal; 
-                 if (params.Total && String(params.Total).trim() !== '') {
-                    totalValueToShow = params.Total; 
-                }
-                 // Mostrar línea Total si hay algún valor en el resumen o si se calculó algo
-                 // MODIFICADO: Añadir Descuento a la condición
+                // Usa el parámetro 'Total' si se proporciona, sino usa el total calculado
+                let totalValueToShow = (params.Total && String(params.Total).trim() !== '') ? params.Total : formattedCalculatedTotal; 
+                
+                 // Decide si mostrar la línea del total
                  const shouldShowTotal = (params.Subtotal || params.Descuento || params.IVALine || params.IVAMonto || params.Total || calculatedTotal !== 0);
                  if (shouldShowTotal) {
                      setElementTextAndVisibility('total', 'total-line', totalValueToShow);
-                 } else {
+                 } else { // Oculta la línea del total si no hay nada que mostrar
                       const totalContainer = document.getElementById('total-line');
                       if (totalContainer) totalContainer.classList.add('hidden');
                  }
 
-
+                // Rellena la sección de Notas Adicionales
                 setElementTextAndVisibility('nota', 'nota-section', params.Nota);
 
-                // --- COMENTAR PIE DE PÁGINA DINÁMICO ---
-                // Ya no se rellenará la información de la empresa ni la fecha de impresión aquí.
-                /*
+                // --- Pie de Página Genérico para Impresión (controlado por el parámetro NotaP) ---
+                const printFooterContainer = document.getElementById('print-footer');
                 const printFooterInfo = document.getElementById('footer-company-info');
-                const printDate = document.getElementById('print-date');
-                if (printFooterInfo) {
-                     // Se usaba params.De para esto, pero ahora el contenido de 'De' es más flexible.
-                     // Podrías necesitar un nuevo parámetro si quieres esta info específica.
-                     // Por ahora, se comenta.
-                     // const deContent = params.De || ''; 
-                     // const deLines = deContent.split('\n');
-                     // printFooterInfo.textContent = (deLines.length > 1 ? deLines[1].trim() : deLines[0].trim()) || '';
+                const printDateElem = document.getElementById('print-date'); 
+
+                if (printFooterContainer) { // Si el contenedor del pie de página existe
+                    // Verifica si el parámetro NotaP (Nota de Pie de página) tiene contenido
+                    if (params.NotaP && String(params.NotaP).trim() !== '') {
+                        printFooterContainer.classList.remove('hidden'); // Muestra el pie de página
+
+                        // Rellena información de Factura # y Cliente
+                        if (printFooterInfo) {
+                            let infoTextArray = [];
+                            if (params.Factura && String(params.Factura).trim() !== '') {
+                                infoTextArray.push(`Factura #: ${params.Factura}`);
+                            }
+                            if (params.Cliente && String(params.Cliente).trim() !== '') {
+                                const clienteLines = String(params.Cliente).split('\n');
+                                if (clienteLines.length > 0 && clienteLines[0].trim() !== '') {
+                                    infoTextArray.push(clienteLines[0].trim()); // Toma la primera línea del cliente
+                                }
+                            }
+                            printFooterInfo.textContent = infoTextArray.join(' - '); // Une la info con un guion
+                        }
+
+                        // Rellena la fecha de impresión
+                        if (printDateElem) {
+                            const now = new Date();
+                            const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                            const timeOptions = { hour: '2-digit', minute: '2-digit' };
+                            printDateElem.textContent = now.toLocaleDateString(locale, dateOptions) + ' ' + now.toLocaleTimeString(locale, timeOptions);
+                        }
+                        
+                        // Rellena el contenido de NotaP
+                        let notaPElement = document.getElementById('footer-notap-content');
+                        if (!notaPElement) { // Si el elemento para NotaP no existe, lo crea
+                            notaPElement = document.createElement('p');
+                            notaPElement.id = 'footer-notap-content';
+                            // Inserta el párrafo de NotaP después del de la fecha, o al final
+                            if (printDateElem && printDateElem.parentNode === printFooterContainer) {
+                                printFooterContainer.insertBefore(notaPElement, printDateElem.nextSibling);
+                            } else {
+                                printFooterContainer.appendChild(notaPElement);
+                            }
+                        }
+                        notaPElement.textContent = String(params.NotaP).trim();
+                        notaPElement.style.fontStyle = 'italic'; // Estilo opcional para NotaP
+
+                    } else { // Si NotaP está vacío, oculta el pie de página
+                        printFooterContainer.classList.add('hidden');
+                    }
                 }
-                 if(printDate) {
-                     const now = new Date();
-                     const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
-                     const timeOptions = { hour: '2-digit', minute: '2-digit' };
-                     printDate.textContent = now.toLocaleDateString(locale, dateOptions) + ' ' + now.toLocaleTimeString(locale, timeOptions);
-                 }
-                 */
             }
 
-            populateInvoice();
+            populateInvoice(); // Ejecuta la función principal al cargar la página
         });
     </script>
 </body>
