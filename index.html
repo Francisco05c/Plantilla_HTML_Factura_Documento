@@ -76,7 +76,7 @@
         /* --- Estructura: Logos --- */
         .logo { display: flex; align-items: center; }
         .logo img {
-            max-height: 60px; /* Altura máxima del logo */
+            max-height: 65px; /* Altura máxima del logo */
             object-fit: contain; /* Asegura que el logo se escale bien sin distorsionarse */
             display: block; /* Evita espacio extra debajo de la imagen */
         }
@@ -228,10 +228,10 @@
         /* --- Estructura: Pie de Página (Impresión Genérico) --- */
         .print-footer {
             display: none; /* Oculto por defecto, JS y @media print controlan visibilidad */
-            padding: 10px 0;
+            padding: 10px ;
+            position: relative;
+            max-width: 100%;
             text-align: center;
-            width: 100%;
-            position: relative; 
             margin-top: 20px;
             font-size: 0.9em;
             background-color: #fff; 
@@ -267,9 +267,20 @@
         .theme-purpura .invoice-table td { border-bottom: 1px solid #f3e5f5; }
         .theme-purpura .invoice-summary .total-line { border-top: 2px solid #ab47bc; color: #8e24aa; }
         .theme-purpura .print-footer { /* Estilos de pie de página para impresión en tema Púrpura */
-             background-color: #ab47bc; color: #ffffff; border-top: none;
+             
+
+            content: '';
+            
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px; /* Altura del degradado */
+            background: linear-gradient(to bottom, rgba(142, 36, 170, 0.5), rgba(142, 36, 170, 0)); /* Púrpura (#8e24aa) a transparente */
+            pointer-events: none; /* Para que no interfiera con el clic */
+
+
         }
-        .theme-purpura .print-footer p { color: #ffffff; }
+        .theme-purpura .print-footer p { color: #8e24aa; font-weight: bold; }
 
         /* === TEMA: Azul Abstracto Pro === */
         body.theme-azul { background-color: #eef5ff; }
@@ -311,6 +322,7 @@
             top: 50%; border: 4px solid #fff; z-index: 1001; /* Sobre la barra de fondo */
             -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
+        
         #print-header-azul .deco-circle { /* Círculo en el header de impresión */
             position: absolute; /* Se posiciona respecto a #print-header-azul */
             transform: translateY(-50%); left: 30px; width: 35px; height: 35px;
@@ -357,8 +369,8 @@
         /* --- Estilos de Impresión --- */
         @media print {
             body { /* Reseteos básicos para impresión */
-                margin: 0 !important;
-                padding: 0 !important; 
+                margin: 0px !important;
+                padding: 0px !important; 
                 color: #000 !important; /* Texto negro para legibilidad */
                 background-color: #fff !important; /* Fondo blanco */
                 -webkit-print-color-adjust: exact; print-color-adjust: exact; /* Fuerza la impresión de colores y fondos */
@@ -372,13 +384,24 @@
                  padding-top: 0 !important; /* El header en flujo ocupa su propio espacio inicial */
                  padding-bottom: 35px !important; /* Espacio para el footer fijo */
             }
+
+            .invoice-wrapper {
+                padding: 0 !important; /* ANULAR el padding del wrapper para impresión si quieres control total con @page */
+                                      /* O dejarlo si quieres ese "marco" de 20px */
+            }
+
             .invoice-container { /* Contenedor principal de la factura en impresión */
                 max-width: 100%; /* Ocupa todo el ancho disponible */
-                padding: 15px !important; 
+                padding: 20px !important; 
                 margin: 0 !important;
-                overflow: visible !important; /* Permite que el contenido se desborde si es necesario (ej. sombras largas) */
+
                 background-color: #fff !important; /* Fondo blanco para el contenido de la factura */
             }
+
+            body.theme-azul.use-hf-azul .invoice-container {
+                
+                margin: 0 !important; }
+
             .print-only { display: block !important; } /* Muestra elementos solo para impresión */
             .print-footer.hidden { display: none !important; } /* Si el pie genérico tiene .hidden, se oculta */
 
@@ -389,11 +412,10 @@
             thead { display: table-header-group !important; } /* Repite cabeceras de tabla en cada página */
             /* Evita saltos de página dentro de estos elementos */
             tbody tr, .invoice-summary, .invoice-note { page-break-inside: avoid !important; } 
+
             
-            .print-footer:not(.hidden) { /* Estilos para el pie de página genérico cuando es visible */
-                display: block !important;
-                border: none !important; 
-            }
+            
+
 
             /* Visibilidad y posicionamiento del Header/Footer del tema Azul Abstracto Pro HF en impresión */
             body.use-hf-azul #print-header-azul {
@@ -428,7 +450,7 @@
 
     <!-- Encabezado Fijo para Impresión (Tema Azul Abstracto Pro HF) -->
     <div id="print-header-azul" class="print-only">
-        <div class="deco-circle"></div>
+        <!--<div class="deco-circle"></div>-->
     </div>
     <!-- Pie Fijo para Impresión (Tema Azul Abstracto Pro HF) -->
     <div id="print-footer-azul" class="print-only">
@@ -442,7 +464,7 @@
 
             <!-- Decoración SUPERIOR para PANTALLA (Tema Azul Abstracto Pro HF) -->
             <div id="screen-header-azul" class="screen-only-decoration">
-                <div class="deco-circle"></div>
+                <!--<div class="deco-circle"></div>-->
             </div>
 
             <!-- Encabezado de la Factura -->
