@@ -516,6 +516,7 @@
                         <span>IVA (<span id="iva-label-text"></span>):</span>
                         <span id="iva-label-value"></span>
                     </div>
+                    <!-- La línea de total tiene la clase hidden por defecto en el HTML -->
                     <div id="total-line" class="summary-line total-line hidden">
                         <span>Total:</span>
                         <span id="total"></span>
@@ -713,7 +714,7 @@
                         const th = document.createElement('th');
                         th.textContent = colName;
                         
-                        // --- MODIFICADO JS: Lógica de alineación de cabecera ---
+                        // --- Lógica de alineación de cabecera ---
                         let thClassName;
                         if (index === 0) { // La primera columna siempre a la izquierda
                             thClassName = 'text-left';
@@ -725,7 +726,7 @@
                             thClassName = 'text-right';
                         }
                         th.className = thClassName;
-                        // --- FIN MODIFICADO JS ---
+                        // --- FIN Lógica de alineación de cabecera ---
 
                         headerRow.appendChild(th);
                         // Busca la columna 'monto' para el cálculo (insensible a mayúsculas/minúsculas)
@@ -769,7 +770,7 @@
                                                  : '';
                                 td.textContent = cellData;
 
-                                // --- MODIFICADO JS: Lógica de alineación de celda ---
+                                // --- Lógica de alineación de celda ---
                                 let tdClassName;
                                 if (j === 0) { // La primera columna siempre a la izquierda
                                     tdClassName = 'text-left';
@@ -781,7 +782,7 @@
                                     tdClassName = 'text-right';
                                 }
                                 td.className = tdClassName;
-                                // --- FIN MODIFICADO JS ---
+                                // --- FIN Lógica de alineación de celda ---
 
                                 bodyRow.appendChild(td);
                                 // Si es la columna de monto, procesa el valor para el cálculo
@@ -813,30 +814,41 @@
                      emptyCell.style.padding = "20px";
                 }
 
-                // --- Rellenar Resumen de Totales ---
+                // --- Rellenar Resumen de Totales (Subtotal, Descuento, IVA) ---
+                // Estos siguen la lógica anterior de mostrar si tienen contenido
                 setElementTextAndVisibility('subtotal', 'subtotal-line', params.Subtotal);
                 setElementTextAndVisibility('descuento', 'descuento-line', params.Descuento);
-                setElementTextAndVisibility('iva-label-text', 'iva-label-line', params.IVALine); // Etiqueta del IVA (ej. "18%")
+                setElementTextAndVisibility('iva-label-text', 'iva-label-line', params.IVALine); // Etiqueta del IVA (ej. "15%")
                 setElementTextAndVisibility('iva-label-value', 'iva-label-line', params.IVAMonto); // Monto del IVA
 
-                // Formatea el total calculado de los items
+                // --- MODIFICADO JS: Lógica para mostrar/ocultar la línea Total ---
+                const totalContainer = document.getElementById('total-line');
+                const totalElement = document.getElementById('total');
+
+                // Determinar el valor a mostrar para Total
                 const formattedCalculatedTotal = calculatedTotal.toLocaleString(locale, currencyOptions); 
-                // Usa el parámetro 'Total' si se proporciona, sino usa el total calculado
                 let totalValueToShow = (params.Total && String(params.Total).trim() !== '') ? params.Total : formattedCalculatedTotal; 
                 
-                 // Decide si mostrar la línea del total
-                 const shouldShowTotal = (params.Subtotal || params.Descuento || params.IVALine || params.IVAMonto || params.Total || calculatedTotal !== 0);
-                 if (shouldShowTotal) {
-                     setElementTextAndVisibility('total', 'total-line', totalValueToShow);
-                 } else { // Oculta la línea del total si no hay nada que mostrar
-                      const totalContainer = document.getElementById('total-line');
-                      if (totalContainer) totalContainer.classList.add('hidden');
-                 }
+                // Set the value in the span (assuming the span exists)
+                if (totalElement) {
+                     totalElement.textContent = totalValueToShow;
+                }
+
+                // Show the total line *only* if the 'Total' parameter is provided and not empty
+                if (totalContainer) {
+                    if (params.Total && String(params.Total).trim() !== '') {
+                        totalContainer.classList.remove('hidden'); // Muestra el contenedor
+                    } else {
+                        totalContainer.classList.add('hidden'); // Oculta el contenedor si el parámetro Total no está o está vacío
+                    }
+                }
+                // --- FIN MODIFICADO JS ---
+
 
                 // Rellena la sección de Notas Adicionales
                 setElementTextAndVisibility('nota', 'nota-section', params.Nota);
 
-                // --- Pie de Página Genérico para Impresión (controlado por el parámetro NotaP) ---
+                // --- Pie de Página Genérico para Impresión (controlado por JS y parámetro NotaP) ---
                 const printFooterContainer = document.getElementById('print-footer');
                 const printFooterInfo = document.getElementById('footer-company-info');
                 const printDateElem = document.getElementById('print-date'); 
