@@ -67,9 +67,10 @@
             margin-bottom: 0px; /* Ajustado, antes 3px */
             font-size: 1.2em; /* Tamaño de fuente aumentado */
         }
-        .header-right .detail-line strong {
+        .header-right .detail-line strong { /* Estilo base para strong en header-right */
             color: #333; /* Color base para el texto en negrita, puede ser sobrescrito por temas */
             transition: color 0.3s ease;
+            /* font-weight: bold; es inherente a strong */
         }
         .header-right .detail-line:last-child { margin-bottom: 0; } /* Evita margen extra en la última línea */
 
@@ -94,16 +95,37 @@
             font-size: 1.2em; /* Tamaño de fuente para esta sección */
         }
         .info-section { flex: 1; min-width: 250px; } /* Cada sección toma espacio disponible, con un mínimo */
-        .info-section strong.dynamic-label { /* Estilo para etiquetas dinámicas generadas por JS (ej. "De:", "Cliente:") */
+        
+        /* --- MODIFICADO CSS: Estilo base para dynamic-label --- */
+        strong.dynamic-label { /* Estilo para etiquetas dinámicas generadas por JS (ej. "De:", "Cliente:", "Factura Titulo:") */
             display: inline; 
             margin-bottom: 0; 
-            color: #333; 
-            transition: color 0.3s ease;
             font-weight: bold; 
+            /* El color y la transición serán manejados por reglas de tema más específicas o heredadas */
         }
-        /* Colores específicos de temas para las etiquetas dinámicas */
-        .theme-purpura .info-section strong.dynamic-label { color: #8e24aa; }
-        .theme-azul .info-section strong.dynamic-label { color: #0d47a1; }
+        
+        /* Colores específicos de temas para las etiquetas dinámicas (esto ya estaba y es correcto) */
+        /* Estas reglas podrían combinarse o simplificarse con las reglas generales de .header-right strong y .info-section strong si se desea */
+        .theme-purpura .info-section strong.dynamic-label,
+        .theme-purpura .header-right .detail-line strong.dynamic-label { color: #8e24aa; transition: color 0.3s ease; }
+        .theme-azul .info-section strong.dynamic-label,
+        .theme-azul .header-right .detail-line strong.dynamic-label { color: #0d47a1; transition: color 0.3s ease; }
+        /* Nota: Si las reglas generales .theme-X .header-right strong ya aplican color y transición,
+           entonces las partes .header-right .detail-line strong.dynamic-label de arriba son redundantes.
+           Las he añadido para máxima claridad, pero se puede probar quitándolas si las reglas generales son suficientes.
+           Revisando, las reglas generales `.theme-purpura .header-right strong` ya cubren esto.
+           Así que, solo necesitamos:
+        */
+        .theme-purpura .info-section strong.dynamic-label { color: #8e24aa; /* transition ya está en .info-section strong si existe, o en .dynamic-label base*/ }
+        .theme-azul .info-section strong.dynamic-label { color: #0d47a1; /* transition ya está en .info-section strong si existe, o en .dynamic-label base*/ }
+        /*
+           De hecho, las reglas:
+           .theme-purpura .header-right strong,
+           .theme-purpura .info-section strong { color: #8e24aa; } (y su equivalente azul)
+           son suficientes. El .dynamic-label solo necesita font-weight:bold y display:inline.
+           He dejado la regla `strong.dynamic-label` simplificada arriba.
+        */
+
 
         .info-section span { white-space: pre-wrap; display: block; } /* Mantiene saltos de línea y espacios del contenido */
         .info-section span#de, .info-section span#para {
@@ -259,26 +281,22 @@
             background: linear-gradient(to top, rgba(206, 147, 216, 0.7), rgba(206, 147, 216, 0));
             border-radius: 0 0 8px 8px; z-index: 0; opacity: 0.8; pointer-events: none;
         }
+        /* Esta regla general ya cubre .header-right strong y .info-section strong (incluyendo los .dynamic-label) */
         .theme-purpura .header-right strong,
-        .theme-purpura .info-section strong { color: #8e24aa; } 
+        .theme-purpura .info-section strong { color: #8e24aa; transition: color 0.3s ease; } 
         .theme-purpura .invoice-table th {
             background-color: #e1bee7; color: #8e24aa; border-bottom: 1px solid #ce93d8;
         }
         .theme-purpura .invoice-table td { border-bottom: 1px solid #f3e5f5; }
         .theme-purpura .invoice-summary .total-line { border-top: 2px solid #ab47bc; color: #8e24aa; }
         .theme-purpura .print-footer { /* Estilos de pie de página para impresión en tema Púrpura */
-             
-
             content: '';
-            
             top: 0;
             left: 0;
             right: 0;
             height: 10px; /* Altura del degradado */
             background: linear-gradient(to bottom, rgba(142, 36, 170, 0.5), rgba(142, 36, 170, 0)); /* Púrpura (#8e24aa) a transparente */
             pointer-events: none; /* Para que no interfiera con el clic */
-
-
         }
         .theme-purpura .print-footer p { color: #8e24aa; font-weight: bold; }
 
@@ -289,8 +307,9 @@
             box-shadow: 0 4px 15px rgba(0, 50, 150, 0.15);
             background-color: #fff;
         }
+        /* Esta regla general ya cubre .header-right strong y .info-section strong (incluyendo los .dynamic-label) */
         .theme-azul .header-right strong,
-        .theme-azul .info-section strong { color: #0d47a1; } 
+        .theme-azul .info-section strong { color: #0d47a1; transition: color 0.3s ease;} 
         .theme-azul .invoice-table th {
             background-color: #1e88e5; color: #ffffff; border-bottom: 1px solid #1565c0;
         }
@@ -413,10 +432,6 @@
             /* Evita saltos de página dentro de estos elementos */
             tbody tr, .invoice-summary, .invoice-note { page-break-inside: avoid !important; } 
 
-            
-            
-
-
             /* Visibilidad y posicionamiento del Header/Footer del tema Azul Abstracto Pro HF en impresión */
             body.use-hf-azul #print-header-azul {
                 display: flex !important; /* Asegura que sea visible y flex container */
@@ -474,7 +489,8 @@
                     <div class="logo" id="logo2"></div>
                 </div>
                 <div class="header-right">
-                     <div id="factura-line" class="detail-line hidden"><strong>Factura #:</strong> <span id="factura"></span></div>
+                     <!-- MODIFICADO HTML: Cambiado para usar un solo span para el contenido de factura -->
+                     <div id="factura-line" class="detail-line hidden"><span id="factura-content"></span></div>
                      <div id="fecha-line" class="detail-line hidden"><strong>Fecha:</strong> <span id="fecha"></span></div>
                      <div id="hora-line" class="detail-line hidden"><strong>Hora:</strong> <span id="hora"></span></div>
                      <div id="forma-pago-line" class="detail-line hidden"><strong>Forma de Pago:</strong> <span id="forma-pago"></span></div>
@@ -644,8 +660,8 @@
                 }
             }
 
-            // Función para dar estilo a las etiquetas (ej. "De:", "Cliente:") en el contenido de De/Para
-            function styleSenderReceiverContent(textContent, defaultLabel) {
+            // Función para dar estilo a las etiquetas (ej. "De:", "Cliente:") en el contenido de De/Para/Factura
+            function styleSenderReceiverContent(textContent, defaultLabel) { // defaultLabel no se usa activamente si el contenido ya tiene la etiqueta
                 if (!textContent || String(textContent).trim() === '') {
                     return ''; 
                 }
@@ -655,7 +671,8 @@
                     if (colonIndex > -1) { // Si se encuentra ':'
                         const labelPart = line.substring(0, colonIndex + 1); // Texto hasta ':' (incluido)
                         const valuePart = line.substring(colonIndex + 1); // Texto después de ':'
-                        return `<strong class="dynamic-label">${labelPart}</strong>${valuePart}`; // Envuelve la etiqueta en <strong>
+                        // Envuelve la etiqueta en <strong> con la clase dynamic-label
+                        return `<strong class="dynamic-label">${labelPart.trim()}</strong>${valuePart}`; 
                     } else { // Si no hay ':'
                         return line; // Devuelve la línea tal cual
                     }
@@ -678,8 +695,11 @@
                 setLogo('logo1', params.Logo1, defaultLogo1Url); // Establece el logo 1
                 setLogo('logo2', params.Logo2, defaultLogo2Url); // Establece el logo 2
 
-                // Rellena los detalles del encabezado de la factura
-                setElementTextAndVisibility('factura', 'factura-line', params.Factura);
+                // --- MODIFICADO JS: Rellenar detalles de Factura usando styleSenderReceiverContent ---
+                const styledFacturaContent = styleSenderReceiverContent(params.Factura, ''); // El segundo parámetro (defaultLabel) es opcional aquí.
+                setElementTextAndVisibility('factura-content', 'factura-line', styledFacturaContent, true);
+                // --- FIN MODIFICADO JS ---
+
                 setElementTextAndVisibility('fecha', 'fecha-line', params.Fecha);
                 setElementTextAndVisibility('hora', 'hora-line', params.Hora);
                 setElementTextAndVisibility('forma-pago', 'forma-pago-line', params.FormaPago);
@@ -814,7 +834,11 @@
                         if (printFooterInfo) {
                             let infoTextArray = [];
                             if (params.Factura && String(params.Factura).trim() !== '') {
-                                infoTextArray.push(`Factura #: ${params.Factura}`);
+                                // Tomar la primera línea del contenido de factura para el pie, si tiene ':'
+                                const facturaLines = String(params.Factura).split('\n');
+                                if (facturaLines.length > 0 && facturaLines[0].trim() !== '') {
+                                    infoTextArray.push(facturaLines[0].trim());
+                                }
                             }
                             if (params.Cliente && String(params.Cliente).trim() !== '') {
                                 const clienteLines = String(params.Cliente).split('\n');
