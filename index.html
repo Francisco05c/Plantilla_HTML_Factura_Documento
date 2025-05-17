@@ -96,7 +96,7 @@
         }
         .info-section { flex: 1; min-width: 250px; } /* Cada sección toma espacio disponible, con un mínimo */
         
-        /* --- MODIFICADO CSS: Estilo base para dynamic-label --- */
+        /* Estilo base para dynamic-label */
         strong.dynamic-label { /* Estilo para etiquetas dinámicas generadas por JS (ej. "De:", "Cliente:", "Factura Titulo:") */
             display: inline; 
             margin-bottom: 0; 
@@ -104,27 +104,11 @@
             /* El color y la transición serán manejados por reglas de tema más específicas o heredadas */
         }
         
-        /* Colores específicos de temas para las etiquetas dinámicas (esto ya estaba y es correcto) */
-        /* Estas reglas podrían combinarse o simplificarse con las reglas generales de .header-right strong y .info-section strong si se desea */
+        /* Colores específicos de temas para las etiquetas dinámicas */
         .theme-purpura .info-section strong.dynamic-label,
-        .theme-purpura .header-right .detail-line strong.dynamic-label { color: #8e24aa; transition: color 0.3s ease; }
+        .theme-purpura .header-right strong { color: #8e24aa; transition: color 0.3s ease; }
         .theme-azul .info-section strong.dynamic-label,
-        .theme-azul .header-right .detail-line strong.dynamic-label { color: #0d47a1; transition: color 0.3s ease; }
-        /* Nota: Si las reglas generales .theme-X .header-right strong ya aplican color y transición,
-           entonces las partes .header-right .detail-line strong.dynamic-label de arriba son redundantes.
-           Las he añadido para máxima claridad, pero se puede probar quitándolas si las reglas generales son suficientes.
-           Revisando, las reglas generales `.theme-purpura .header-right strong` ya cubren esto.
-           Así que, solo necesitamos:
-        */
-        .theme-purpura .info-section strong.dynamic-label { color: #8e24aa; /* transition ya está en .info-section strong si existe, o en .dynamic-label base*/ }
-        .theme-azul .info-section strong.dynamic-label { color: #0d47a1; /* transition ya está en .info-section strong si existe, o en .dynamic-label base*/ }
-        /*
-           De hecho, las reglas:
-           .theme-purpura .header-right strong,
-           .theme-purpura .info-section strong { color: #8e24aa; } (y su equivalente azul)
-           son suficientes. El .dynamic-label solo necesita font-weight:bold y display:inline.
-           He dejado la regla `strong.dynamic-label` simplificada arriba.
-        */
+        .theme-azul .header-right strong { color: #0d47a1; transition: color 0.3s ease;} 
 
 
         .info-section span { white-space: pre-wrap; display: block; } /* Mantiene saltos de línea y espacios del contenido */
@@ -154,7 +138,9 @@
             font-weight: bold;
             color: #333; 
         }
-        .invoice-table th.text-left, .invoice-table td.text-left { text-align: left; } /* Para celdas de descripción */
+        /* Clases utilitarias para alineación de texto */
+        .invoice-table th.text-left, .invoice-table td.text-left { text-align: left !important; } 
+        .invoice-table th.text-right, .invoice-table td.text-right { text-align: right !important; } 
 
         /* --- Estructura: Resumen --- */
         .invoice-summary {
@@ -418,8 +404,8 @@
             }
 
             body.theme-azul.use-hf-azul .invoice-container {
-                
-                margin: 0 !important; }
+                margin: 0 !important; 
+            }
 
             .print-only { display: block !important; } /* Muestra elementos solo para impresión */
             .print-footer.hidden { display: none !important; } /* Si el pie genérico tiene .hidden, se oculta */
@@ -574,7 +560,7 @@
                          } catch (e) {
                             console.error(`Error decodificando parámetro '${key}':`, e);
                             params[key] = urlParams.get(key); // Usa el valor crudo si falla la decodificación
-                        }
+                         }
                     }
                 });
                 // Procesa los datos de las columnas nombradas en el parámetro 'columna'
@@ -695,10 +681,9 @@
                 setLogo('logo1', params.Logo1, defaultLogo1Url); // Establece el logo 1
                 setLogo('logo2', params.Logo2, defaultLogo2Url); // Establece el logo 2
 
-                // --- MODIFICADO JS: Rellenar detalles de Factura usando styleSenderReceiverContent ---
-                const styledFacturaContent = styleSenderReceiverContent(params.Factura, ''); // El segundo parámetro (defaultLabel) es opcional aquí.
+                // Rellenar detalles de Factura usando styleSenderReceiverContent
+                const styledFacturaContent = styleSenderReceiverContent(params.Factura, ''); 
                 setElementTextAndVisibility('factura-content', 'factura-line', styledFacturaContent, true);
-                // --- FIN MODIFICADO JS ---
 
                 setElementTextAndVisibility('fecha', 'fecha-line', params.Fecha);
                 setElementTextAndVisibility('hora', 'hora-line', params.Hora);
@@ -720,13 +705,28 @@
                 let calculatedTotal = 0; // Variable para calcular el total de los items
                 let amountColumnIndex = -1; // Índice de la columna 'Monto' (o la última si no se encuentra)
                 const columnNames = params.columna || []; // Nombres de las columnas de la tabla
+                const numColumns = columnNames.length; // Número total de columnas
 
-                if (columnNames.length > 0) { // Si se definieron columnas
+                if (numColumns > 0) { // Si se definieron columnas
                     const headerRow = document.createElement('tr'); // Crea fila de cabecera
                     columnNames.forEach((colName, index) => { // Para cada nombre de columna
                         const th = document.createElement('th');
                         th.textContent = colName;
-                        th.className = (index === 0) ? 'text-left' : 'text-right'; // Primera columna a la izq, resto a la der
+                        
+                        // --- MODIFICADO JS: Lógica de alineación de cabecera ---
+                        let thClassName;
+                        if (index === 0) { // La primera columna siempre a la izquierda
+                            thClassName = 'text-left';
+                        } else if (index === numColumns - 1) { // La última columna siempre a la derecha
+                            thClassName = 'text-right';
+                        } else if (colName.toLowerCase() === 'producto') { // Si es "Producto" y no es la primera o la última, a la izquierda
+                            thClassName = 'text-left';
+                        } else { // Cualquier otra columna intermedia, a la derecha
+                            thClassName = 'text-right';
+                        }
+                        th.className = thClassName;
+                        // --- FIN MODIFICADO JS ---
+
                         headerRow.appendChild(th);
                         // Busca la columna 'monto' para el cálculo (insensible a mayúsculas/minúsculas)
                         if (typeof colName === 'string' && colName.toLowerCase() === 'monto') {
@@ -734,18 +734,18 @@
                         }
                     });
                     // Si no se encontró 'monto', asume que la última columna contiene los montos
-                    if (amountColumnIndex === -1 && columnNames.length > 0) { 
-                       amountColumnIndex = columnNames.length - 1;
+                    if (amountColumnIndex === -1 && numColumns > 0) { 
+                       amountColumnIndex = numColumns - 1;
                     }
                     tableHead.appendChild(headerRow); // Añade la fila de cabecera a la tabla
 
                     // Obtiene los datos de la primera columna para determinar el número de filas
-                    const firstColName = columnNames[0];
-                    const firstColData = params[firstColName] ? String(params[firstColName]).split(',') : [];
+                    const firstColName = columnNames.length > 0 ? columnNames[0] : null;
+                    const firstColData = firstColName && params[firstColName] ? String(params[firstColName]).split(',') : [];
 
                     // Si hay datos en la primera columna (y por ende, filas en la tabla)
                     if (firstColData.length > 0 && firstColData[0].trim() !== '') {
-                        const numRows = firstColData.length;
+                        let numRows = firstColData.length;
                         // Crea un array de arrays, donde cada subarray contiene los datos de una columna
                         const rowDataArrays = columnNames.map(colName =>
                             params[colName] ? String(params[colName]).split(',') : Array(numRows).fill('')
@@ -753,7 +753,9 @@
                         // Verifica si todas las columnas tienen el mismo número de elementos
                         const consistentData = rowDataArrays.every(arr => arr.length === numRows);
                         if (!consistentData) {
-                            console.warn("Advertencia: Las columnas no tienen el mismo número de elementos.");
+                            console.warn("Advertencia: Las columnas no tienen el mismo número de elementos. Se usará el número mínimo de filas entre las columnas con datos.");
+                             // Ajusta el número de filas si hay inconsistencia
+                             numRows = Math.min(...rowDataArrays.map(arr => arr.length > 0 ? arr.length : numRows)); // Usa numRows como fallback si una columna está vacía
                         }
                         // Itera sobre cada fila
                         for (let i = 0; i < numRows; i++) {
@@ -766,7 +768,21 @@
                                                  ? String(rowDataArrays[j][i]).trim()
                                                  : '';
                                 td.textContent = cellData;
-                                td.className = (j === 0) ? 'text-left' : 'text-right'; // Estilo de alineación
+
+                                // --- MODIFICADO JS: Lógica de alineación de celda ---
+                                let tdClassName;
+                                if (j === 0) { // La primera columna siempre a la izquierda
+                                    tdClassName = 'text-left';
+                                } else if (j === numColumns - 1) { // La última columna siempre a la derecha
+                                    tdClassName = 'text-right';
+                                } else if (colName.toLowerCase() === 'producto') { // Si es "Producto" y no es la primera o la última, a la izquierda
+                                    tdClassName = 'text-left';
+                                } else { // Cualquier otra columna intermedia, a la derecha
+                                    tdClassName = 'text-right';
+                                }
+                                td.className = tdClassName;
+                                // --- FIN MODIFICADO JS ---
+
                                 bodyRow.appendChild(td);
                                 // Si es la columna de monto, procesa el valor para el cálculo
                                 if (j === amountColumnIndex) {
@@ -783,7 +799,7 @@
                     } else { // Si no hay items en la tabla
                          const emptyRow = tableBody.insertRow();
                          const emptyCell = emptyRow.insertCell();
-                         emptyCell.colSpan = columnNames.length || 1; // Abarca todas las columnas
+                         emptyCell.colSpan = numColumns || 1; // Abarca todas las columnas
                          emptyCell.textContent = "No hay elementos para mostrar.";
                          emptyCell.style.textAlign = "center";
                          emptyCell.style.padding = "20px";
