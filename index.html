@@ -65,7 +65,7 @@
         }
         .header-right .detail-line {
             margin-bottom: 0px; /* Ajustado, antes 3px */
-            font-size: 1em; /* Tamaño de fuente aumentado */
+            font-size: 0.9em; /* Tamaño de fuente aumentado */
         }
         .header-right .detail-line strong { /* Estilo base para strong en header-right */
             color: #333; /* Color base para el texto en negrita, puede ser sobrescrito por temas */
@@ -92,7 +92,7 @@
             gap: 20px; /* Espacio entre las secciones De y Para */
             position: relative;
             z-index: 1;
-            font-size: 1em; /* Tamaño de fuente para esta sección */
+            font-size: 0.8 /* Tamaño de fuente para esta sección */
         }
         .info-section { flex: 1; min-width: 250px; } /* Cada sección toma espacio disponible, con un mínimo */
         
@@ -155,11 +155,11 @@
             justify-content: space-between; /* Etiqueta a la izq, valor a la der */
             margin-bottom: 5px;
             padding: 2px 0;
-            font-size: 1em;
+            font-size: 0.8em;
         }
         .invoice-summary .total-line { /* Línea del total general */
             font-weight: bold;
-            font-size: 1.2em; /* Más grande para destacar */
+            font-size: 1.1em; /* Más grande para destacar */
             border-top: 2px solid #333; 
             padding-top: 8px;
             margin-top: 5px;
@@ -176,7 +176,7 @@
             position: relative; 
             z-index: 1;
             /* Mantiene los tamaños de fuente originales para el resumen */
-            font-size: 1em; /* Asegura que el tamaño base sea el mismo que el de la nota */
+            font-size: 0.8em; /* Asegura que el tamaño base sea el mismo que el de la nota */
         }
         .invoice-summary .summary-line {
             display: flex;
@@ -187,7 +187,7 @@
         }
         .invoice-summary .total-line { 
             font-weight: bold;
-            font-size: 1.2em; /* Tamaño específico para la línea total */
+            font-size: 1.1em; /* Tamaño específico para la línea total */
             border-top: 2px solid #333; 
             padding-top: 8px;
             margin-top: 5px;
@@ -204,7 +204,7 @@
             position: relative; /* Solo para z-index si fuera necesario, no para el layout de flujo */
             z-index: 1;
             /* El font-size se manejará para que coincida con el texto general si no es el del resumen */
-            font-size: 1em; /* Coincide con .invoice-summary para consistencia inicial */
+            font-size: 0.8em; /* Coincide con .invoice-summary para consistencia inicial */
         }
         .invoice-note strong { 
             display: inline; 
@@ -241,7 +241,7 @@
             max-width: 100%;
             text-align: center;
             margin-top: 20px;
-            font-size: 0.9em;
+            font-size: 0.8em;
             background-color: #fff; 
             color: #333; 
             border-top: 1px solid #ddd; 
@@ -424,14 +424,14 @@
                 position: relative !important; /* Para que esté en el flujo normal y solo en la primera página */
                 z-index: 1; /* Sobre el contenido si hay solapamientos */
             }
-            body.use-hf-azul #print-footer-azul {
-                display: flex !important; /* Asegura que sea visible y flex container */
-                position: fixed !important; /* Fijo para que se repita en todas las páginas */
-                bottom: 0 !important;
+            /*body.use-hf-azul #print-footer-azul {
+                /*display: flex !important;*/ /* Asegura que sea visible y flex container */
+                /*position: fixed !important;*/ /* Fijo para que se repita en todas las páginas */
+                /*bottom: 0 !important;
                 left: 0 !important;
                 width: 100% !important;
-                z-index: 1000 !important; /* Por encima de casi todo */
-            }
+                /*z-index: 1000 !important;*/ /* Por encima de casi todo */
+            /*}*/
             /* Oculta el header/footer del tema HF si no se usa la clase .use-hf-azul */
             body:not(.use-hf-azul) #print-header-azul,
             body:not(.use-hf-azul) #print-footer-azul {
@@ -454,9 +454,9 @@
         <!--<div class="deco-circle"></div>-->
     </div>
     <!-- Pie Fijo para Impresión (Tema Azul Abstracto Pro HF) -->
-    <div id="print-footer-azul" class="print-only">
+    <!-- <div id="print-footer-azul" class="print-only">
         <div class="deco-skew"></div>
-    </div>
+    </div>-->
 
     <!-- Wrapper para padding general en pantalla -->
     <div class="invoice-wrapper">
@@ -675,7 +675,7 @@
                 const currencyOptions = { style: 'currency', currency: 'USD', minimumFractionDigits: 2 }; // Opciones para formatear moneda
 
                 // URLs de logos por defecto (si no se proporcionan en los parámetros)
-                const defaultLogo1Url = 'https://raw.githubusercontent.com/Francisco05c/Plantilla_HTML_Factura_Documento/2b16dde0b11d935e478cc4af5dc0832b6e3fc3e8/Logo.svg'; // Reemplazar con URL accesible o quitar si no hay default
+                const defaultLogo1Url = 'https://raw.githubusercontent.com/Francisco05c/Plantilla_HTML_Factura_Documento/a35577462b664ba92d33755a7279a335a06b4243/Logo.svg'; // Reemplazar con URL accesible o quitar si no hay default
                 const defaultLogo2Url = '';
 
                 applyTheme(params.tema); // Aplica el tema visual
