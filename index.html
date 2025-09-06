@@ -708,25 +708,36 @@
                 const columnNames = params.columna || []; // Nombres de las columnas de la tabla
                 const numColumns = columnNames.length; // Número total de columnas
 
+                // Pre-análisis de columnas con saltos de línea internos ---
+                // Identifica qué columnas contienen el carácter '|' para forzar su alineación a la izquierda.
+                const multiLineColumns = new Set();
+                columnNames.forEach(colName => {
+                    if (params[colName] && String(params[colName]).includes('|')) {
+                        multiLineColumns.add(colName);
+                    }
+                });
+
                 if (numColumns > 0) { // Si se definieron columnas
                     const headerRow = document.createElement('tr'); // Crea fila de cabecera
                     columnNames.forEach((colName, index) => { // Para cada nombre de columna
                         const th = document.createElement('th');
                         th.textContent = colName;
                         
-                        // --- Lógica de alineación de cabecera ---
+                        // Lógica de alineación de cabecera actualizada ---
                         let thClassName;
-                        if (index === 0) { // La primera columna siempre a la izquierda
+                        // Prioridad 1: Si la columna fue identificada como multi-línea, alinear a la izquierda.
+                        if (multiLineColumns.has(colName)) {
+                            thClassName = 'text-left';
+                        } else if (index === 0) { // La primera columna siempre a la izquierda
                             thClassName = 'text-left';
                         } else if (index === numColumns - 1) { // La última columna siempre a la derecha
                             thClassName = 'text-right';
-                        } else if (colName.toLowerCase() === 'producto') { // Si es "Producto" y no es la primera o la última, a la izquierda
+                        } else if (colName.toLowerCase() === 'producto' || colName.toLowerCase() === 'articulos') { // Columnas de texto comunes a la izquierda
                             thClassName = 'text-left';
                         } else { // Cualquier otra columna intermedia, a la derecha
                             thClassName = 'text-right';
                         }
                         th.className = thClassName;
-                        // --- FIN Lógica de alineación de cabecera ---
 
                         headerRow.appendChild(th);
                         // Busca la columna 'monto' para el cálculo (insensible a mayúsculas/minúsculas)
@@ -768,21 +779,27 @@
                                 const cellData = (rowDataArrays[j] && rowDataArrays[j][i] !== undefined)
                                                  ? String(rowDataArrays[j][i]).trim()
                                                  : '';
-                                td.textContent = cellData;
+                                
+                                // Procesamiento de contenido y alineación de celda ---
+                                // 1. Procesa el contenido: Reemplaza '|' con <br> y usa innerHTML.
+                                td.innerHTML = cellData.replace(/\|/g, '<br>');
 
-                                // --- Lógica de alineación de celda ---
+                                // 2. Lógica de alineación de celda actualizada.
                                 let tdClassName;
-                                if (j === 0) { // La primera columna siempre a la izquierda
+                                // Prioridad 1: Si la columna es multi-línea, alinear a la izquierda.
+                                if (multiLineColumns.has(colName)) {
+                                    tdClassName = 'text-left';
+                                } else if (j === 0) { // La primera columna siempre a la izquierda
                                     tdClassName = 'text-left';
                                 } else if (j === numColumns - 1) { // La última columna siempre a la derecha
                                     tdClassName = 'text-right';
-                                } else if (colName.toLowerCase() === 'producto') { // Si es "Producto" y no es la primera o la última, a la izquierda
+                                } else if (colName.toLowerCase() === 'producto' || colName.toLowerCase() === 'articulos') { // Columnas de texto comunes a la izquierda
                                     tdClassName = 'text-left';
                                 } else { // Cualquier otra columna intermedia, a la derecha
                                     tdClassName = 'text-right';
                                 }
                                 td.className = tdClassName;
-                                // --- FIN Lógica de alineación de celda ---
+                                
 
                                 bodyRow.appendChild(td);
                                 // Si es la columna de monto, procesa el valor para el cálculo
