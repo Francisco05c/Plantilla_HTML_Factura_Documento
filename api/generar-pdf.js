@@ -1,4 +1,4 @@
-const chrome = require('chrome-aws-lambda');
+const chrome = require('@sparticuz/chrome-aws-lambda');
 const puppeteer = require('puppeteer-core');
 
 export default async function handler(request, response) {
