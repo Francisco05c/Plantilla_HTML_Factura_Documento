@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@sparticuz/chrome-aws-lambda": "^16.0.0",
-    "puppeteer-core": "^16.2.0"
+    "@sparticuz/chrome-aws-lambda": "19.0.0",
+    "puppeteer-core": "19.4.1"
   }
 }

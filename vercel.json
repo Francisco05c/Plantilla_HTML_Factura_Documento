@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/generar-pdf.js": {
+      "memory": 2048
+    }
+  }
+}
